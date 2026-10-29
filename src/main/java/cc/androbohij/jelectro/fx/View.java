@@ -155,7 +155,6 @@ public class View extends Application implements ListObserver {
     }
 
     private void displayFieldVectors() {
-        System.out.println(vectorDensity);
         fieldVectors.getChildren().clear();
         if (eField.isEmpty())
             return;
@@ -177,17 +176,6 @@ public class View extends Application implements ListObserver {
                 }
             }
         }
-    }
-
-    private Point3D normRange(Point3D v, double min, double max) {
-        return new Point3D(
-            clamp(v.getX(), min, max), 
-            clamp(v.getY(), min, max), 
-            clamp(v.getZ(), min, max));
-    }
-
-    private double clamp(double a, double min, double max) {
-        return Math.max(min, Math.min(a, max));
     }
 
     @Override
