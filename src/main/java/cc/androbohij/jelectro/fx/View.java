@@ -1,6 +1,6 @@
 package cc.androbohij.jelectro.fx;
 
-import static cc.androbohij.jelectro.Settings.displayFieldVectors;
+import static cc.androbohij.jelectro.Settings.*;
 
 import java.util.logging.Logger;
 
@@ -82,7 +82,8 @@ public class View extends Application implements ListObserver {
         scene.setFill(Color.BLACK);
 
         EField.getInstance().subscribe(this);
-        EField.getInstance().createObject(new PointCharge(new Point3D(0, 0, 0), -1e-10));
+        EField.getInstance().createObject(new PointCharge(new Point3D(1, 0, 0), -1e-10));
+        EField.getInstance().createObject(new PointCharge(new Point3D(-1, 0, 0), 1e-10));
         // EField.getInstance().createObject(new PointCharge(new Point3D(2.5, 0, 0), 1e-9));
 
         stage.initStyle(StageStyle.UNDECORATED);
@@ -115,7 +116,7 @@ public class View extends Application implements ListObserver {
         Point3D mid = p1.midpoint(p2);
         double length = directionVec.magnitude();
 
-        Cylinder cylinder = new Cylinder(0.005, length, 7);
+        Cylinder cylinder = new Cylinder(0.005, length, 3);
         cylinder.setMaterial(new PhongMaterial(Color.WHITE));
         if (ignoreDepth)
             cylinder.setDepthTest(DepthTest.DISABLE);
@@ -139,18 +140,32 @@ public class View extends Application implements ListObserver {
         fieldVectors.getChildren().clear();
         if (EField.getInstance().isEmpty())
             return;
-        for (int i = -5; i < 5; i++) {
-            for (int j = -5; j < 5; j++) {
-                for (int k = -5; k < 5; k++) {
-                    Point3D currentP = new Point3D(i, k, j);
+        for (int i = -5*vectorDensity; i < 5*vectorDensity; i++) {
+            for (int j = -5*vectorDensity; j < 5*vectorDensity; j++) {
+                for (int k = -5*vectorDensity; k < 5*vectorDensity; k++) {
+                    double x = (double) i / vectorDensity;
+                    double y = (displayVectors2DOnly) ? 0 : ((double) j / vectorDensity);
+                    double z = (double) k / vectorDensity;
+                    Point3D currentP = new Point3D(x, y, z);
                     fieldVectors.getChildren().add(straightPolyline(
-                        EField.getInstance().getEAtPoint(currentP).add(currentP), 
+                        normalizeBetter(EField.getInstance().getEAtPoint(currentP)).multiply(0.33).add(currentP), 
                         currentP, 
                         false
                     ));
                 }
             }
         }
+    }
+
+    private Point3D normalizeBetter(Point3D v) {
+        return new Point3D(
+            clamp(v.getX(), -1, 1), 
+            clamp(v.getY(), -1, 1), 
+            clamp(v.getZ(), -1, 1));
+    }
+
+    private double clamp(double a, double min, double max) {
+        return Math.max(min, Math.min(a, max));
     }
 
     @Override
