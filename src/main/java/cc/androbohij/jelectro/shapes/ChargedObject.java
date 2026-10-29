@@ -1,11 +1,13 @@
 package cc.androbohij.jelectro.shapes;
 
 import javafx.geometry.Point3D;
+import javafx.scene.shape.Shape3D;
 
 public abstract class ChargedObject {
     
     Point3D position;
     double charge;
+    Shape3D shape;
 
     public ChargedObject(Point3D position, double charge) {
         this.position = position;
@@ -18,5 +20,17 @@ public abstract class ChargedObject {
      * @return a vector for E at that point p
      */
     public abstract Point3D getE(Point3D p);
+
+    public double getCharge() {
+        return charge;
+    }
+
+    public Point3D getPosition() {
+        return position;
+    }
+
+    public Shape3D getShape() {
+        return shape;
+    }
 
 }
