@@ -1,23 +1,33 @@
 package cc.androbohij.jelectro;
 
-public interface Settings {
+public abstract class Settings {
     
     /**
-     * coulombs constant, or, since its k, how about koulombs konstant
+     * <p>coulombs constant, or, since its k, maybe koulombs konstant</p>
      */
     public static final double K = 8.987e9;
 
     /**
-     * how many field vectors should we display in 1 cubic meter
+     * <p>how far out in meters to consider vectors to display</p>
+     * <p>bounds covers a cube centered on the origin spanning 
+     * -vectorBounds to vectorBounds on all sides</p>
+     * <p><b>recommended: 5</b></p>
      */
-    public static final double vectorDensity = 4;
+    public static double vectorBounds = 2;
 
-    public static final boolean displayGrid = true;
+    /**
+     * <p>how many field vectors should we display in 1 cubic meter</p>
+     * <p><b>recommended: 23/sqrt(vectorBounds^3) 
+     * (i just did a regression from some values i liked to get this)</b></p>
+     */
+    public static double vectorDensity = Math.round((23/Math.pow(vectorBounds, 1.5)));
 
-    public static final boolean showField = true;
+    public static boolean displayGrid = true;
 
-    public static final boolean Field2DOnly = true;
+    public static boolean showField = true;
 
-    public static final double cullFieldVecs = 0.015;
+    public static boolean Field2DOnly = true;
+
+    public static double cullFieldVecs = 0.1;
 
 }

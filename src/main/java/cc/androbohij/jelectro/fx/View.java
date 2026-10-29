@@ -25,7 +25,6 @@ import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Box;
 import javafx.scene.shape.Cylinder;
 import javafx.scene.transform.Rotate;
-import javafx.scene.transform.Transform;
 import javafx.scene.transform.Translate;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -47,6 +46,11 @@ public class View extends Application implements ListObserver {
     private EField eField;
 
     public View() {
+        if (!Platform.isSupported(ConditionalFeature.SCENE3D)) {
+            log.warning("3d is not supported");
+            Platform.exit();
+            return;
+        }
         root = new Group();
         objects = new Group();
         fieldVectors = new Group();
@@ -58,10 +62,6 @@ public class View extends Application implements ListObserver {
 
     @Override
     public void start(Stage stage) {
-        if (!Platform.isSupported(ConditionalFeature.SCENE3D)) {
-            log.warning("3d is not supported");
-            return;
-        }
         Scene scene = new Scene(root, 640, 480, true);
 
         Box mousePlane = new Box(10,0.01,10);
@@ -117,14 +117,15 @@ public class View extends Application implements ListObserver {
             boolean ignoreDepth, boolean scaleLines) {
         Point3D directionVec = p2.subtract(p1);
         double length = directionVec.magnitude();
-        if (length == 0)
-            return new Group();
 
-        double scale = scaleLines ? Math.min(length, 0.2) / length : 1.0;
+        double scale = scaleLines ? Math.min(length, 1/vectorDensity) / length : 1.0;
 
         Point3D scaledVec = directionVec.multiply(scale);
         double scaledLength = scaledVec.magnitude();
         Point3D mid = p1.add(scaledVec.multiply(0.5));
+
+        if (length == 0 || scaledLength < cullFieldVecs)
+            return new Group();
 
         Cylinder cylinder = new Cylinder(0.005, scaledLength, 3);
         cylinder.setMaterial(new PhongMaterial(Color.WHITE));
@@ -138,6 +139,7 @@ public class View extends Application implements ListObserver {
             new Rotate(-scaledVec.angle(Rotate.Y_AXIS),
                 scaledVec.crossProduct(Rotate.Y_AXIS))
         );
+        line.setMouseTransparent(true);
         return line;
     }
 
@@ -153,25 +155,25 @@ public class View extends Application implements ListObserver {
     }
 
     private void displayFieldVectors() {
+        System.out.println(vectorDensity);
         fieldVectors.getChildren().clear();
         if (eField.isEmpty())
             return;
-        for (double i = -5*vectorDensity; i < 5*vectorDensity; i++) {
-            for (double j = -5*vectorDensity; j < 5*vectorDensity; j++) {
-                for (double k = -5*vectorDensity; k < 5*vectorDensity; k++) {
+        for (double i = -vectorBounds*vectorDensity; i < vectorBounds*vectorDensity; i++) {
+            for (double j = -vectorBounds*vectorDensity; j < vectorBounds*vectorDensity; j++) {
+                for (double k = -vectorBounds*vectorDensity; k <vectorBounds*vectorDensity; k++) {
                     double x = i / vectorDensity;
-                    double y = (Field2DOnly) ? 0 : j / vectorDensity;
-                    double z = k / vectorDensity;
+                    double y = (Field2DOnly) ? 0 : k / vectorDensity;
+                    double z = j / vectorDensity;
                     Point3D currentP = new Point3D(x, y, z);
-                    Point3D e = eField.getEAtPoint(currentP);
-                    if (e.magnitude() < cullFieldVecs)
-                        continue;
-                    fieldVectors.getChildren().add(straightPolyline(
+                    Group line = straightPolyline(
                         currentP,
-                        e.add(currentP), 
+                        eField.getEAtPoint(currentP).add(currentP), 
                         false,
                         true
-                    ));
+                    );
+                    if (!line.getChildren().isEmpty())
+                        fieldVectors.getChildren().add(line);
                 }
             }
         }
