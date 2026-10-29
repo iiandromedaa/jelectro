@@ -44,6 +44,8 @@ public class View extends Application implements ListObserver {
     private Rotate camPitch;
     private Rotate camYaw;
 
+    private EField eField;
+
     public View() {
         root = new Group();
         objects = new Group();
@@ -51,6 +53,7 @@ public class View extends Application implements ListObserver {
         camera = new PerspectiveCamera(true);
         camPitch = new Rotate(0, Rotate.X_AXIS);
         camYaw = new Rotate(0, Rotate.Y_AXIS);
+        eField = EField.getInstance();
     }
 
     @Override
@@ -76,15 +79,14 @@ public class View extends Application implements ListObserver {
         scene.setOnMouseDragged(this::mouseDrag);
         scene.setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.SPACE) {
-                EField.getInstance().clearObjects();
+                eField.clearObjects();
             }
         });
         scene.setFill(Color.BLACK);
 
-        EField.getInstance().subscribe(this);
-        EField.getInstance().createObject(new PointCharge(new Point3D(1, 0, 0), -1e-10));
-        EField.getInstance().createObject(new PointCharge(new Point3D(-1, 0, 0), 1e-10));
-        // EField.getInstance().createObject(new PointCharge(new Point3D(2.5, 0, 0), 1e-9));
+        eField.subscribe(this);
+        eField.createObject(new PointCharge(new Point3D(0.01, 0, 0), -1e-9));
+        eField.createObject(new PointCharge(new Point3D(-0.01, 0, 0), 1e-9));
 
         stage.initStyle(StageStyle.UNDECORATED);
         stage.setScene(scene);
@@ -111,22 +113,36 @@ public class View extends Application implements ListObserver {
         mouseDownY = event.getSceneY();
     }
     
-    private Cylinder straightPolyline(Point3D p1, Point3D p2, boolean ignoreDepth) {
+    private Group straightPolyline(Point3D p1, Point3D p2, 
+            boolean ignoreDepth, boolean scaleLines) {
         Point3D directionVec = p2.subtract(p1);
-        Point3D mid = p1.midpoint(p2);
         double length = directionVec.magnitude();
+        if (length == 0)
+            return new Group();
 
-        Cylinder cylinder = new Cylinder(0.005, length, 3);
+        double scale = scaleLines ? Math.min(length, 0.2) / length : 1.0;
+
+        Point3D scaledVec = directionVec.multiply(scale);
+        double scaledLength = scaledVec.magnitude();
+        Point3D mid = p1.add(scaledVec.multiply(0.5));
+
+        Cylinder cylinder = new Cylinder(0.005, scaledLength, 3);
         cylinder.setMaterial(new PhongMaterial(Color.WHITE));
         if (ignoreDepth)
             cylinder.setDepthTest(DepthTest.DISABLE);
 
-        cylinder.getTransforms().addAll(
+        Group line = new Group(cylinder);
+
+        line.getTransforms().addAll(
             new Translate(mid.getX(), mid.getY(), mid.getZ()),
-            new Rotate(-directionVec.angle(Rotate.Y_AXIS),
-                directionVec.crossProduct(Rotate.Y_AXIS))
+            new Rotate(-scaledVec.angle(Rotate.Y_AXIS),
+                scaledVec.crossProduct(Rotate.Y_AXIS))
         );
-        return cylinder;
+        return line;
+    }
+
+    private Group straightPolyline(Point3D p1, Point3D p2, boolean ignoreDepth) {
+        return straightPolyline(p1, p2, ignoreDepth, false);
     }
 
     private void makeGrid() {
@@ -138,30 +154,34 @@ public class View extends Application implements ListObserver {
 
     private void displayFieldVectors() {
         fieldVectors.getChildren().clear();
-        if (EField.getInstance().isEmpty())
+        if (eField.isEmpty())
             return;
-        for (int i = -5*vectorDensity; i < 5*vectorDensity; i++) {
-            for (int j = -5*vectorDensity; j < 5*vectorDensity; j++) {
-                for (int k = -5*vectorDensity; k < 5*vectorDensity; k++) {
-                    double x = (double) i / vectorDensity;
-                    double y = (displayVectors2DOnly) ? 0 : ((double) j / vectorDensity);
-                    double z = (double) k / vectorDensity;
+        for (double i = -5*vectorDensity; i < 5*vectorDensity; i++) {
+            for (double j = -5*vectorDensity; j < 5*vectorDensity; j++) {
+                for (double k = -5*vectorDensity; k < 5*vectorDensity; k++) {
+                    double x = i / vectorDensity;
+                    double y = (Field2DOnly) ? 0 : j / vectorDensity;
+                    double z = k / vectorDensity;
                     Point3D currentP = new Point3D(x, y, z);
+                    Point3D e = eField.getEAtPoint(currentP);
+                    if (e.magnitude() < cullFieldVecs)
+                        continue;
                     fieldVectors.getChildren().add(straightPolyline(
-                        normalizeBetter(EField.getInstance().getEAtPoint(currentP)).multiply(0.33).add(currentP), 
-                        currentP, 
-                        false
+                        currentP,
+                        e.add(currentP), 
+                        false,
+                        true
                     ));
                 }
             }
         }
     }
 
-    private Point3D normalizeBetter(Point3D v) {
+    private Point3D normRange(Point3D v, double min, double max) {
         return new Point3D(
-            clamp(v.getX(), -1, 1), 
-            clamp(v.getY(), -1, 1), 
-            clamp(v.getZ(), -1, 1));
+            clamp(v.getX(), min, max), 
+            clamp(v.getY(), min, max), 
+            clamp(v.getZ(), min, max));
     }
 
     private double clamp(double a, double min, double max) {
@@ -171,21 +191,21 @@ public class View extends Application implements ListObserver {
     @Override
     public void listAdd(ChargedObject chargedObject) {
         objects.getChildren().add(chargedObject.getShape());
-        if (displayFieldVectors)
+        if (showField)
             displayFieldVectors();
     }
 
     @Override
     public void listRemove(ChargedObject chargedObject) {
         objects.getChildren().remove(chargedObject.getShape());
-        if (displayFieldVectors)
+        if (showField)
             displayFieldVectors();
     }
 
     @Override
     public void listClear() {
         objects.getChildren().clear();
-        if (displayFieldVectors)
+        if (showField)
             displayFieldVectors();
     }
 

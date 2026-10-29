@@ -21,8 +21,10 @@ public class PointCharge extends ChargedObject {
     }
 
     public Point3D getE(Point3D p) {
-        Point3D sepVector = p.subtract(position).normalize();
         double r = position.distance(p);
+        if (r < 0.1)
+            return Point3D.ZERO;
+        Point3D sepVector = p.subtract(position).normalize();
         return sepVector.multiply((charge*K)/(Math.pow(r, 2)));
     }
     
