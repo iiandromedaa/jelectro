@@ -9,8 +9,9 @@ public class Multipole extends Rotatable {
 
     private List<PointCharge> charges;
 
-    public Multipole(Point3D position, double q, double d, int poles) {
-        super(position, 0);
+    public Multipole(Point3D position, double q, double d, int poles, 
+        double rx, double ry, double rz) {
+        super(position, 0, rx, ry, rz);
         charges = new ArrayList<>();
         createMultipole(poles, q, d);
     }
@@ -35,7 +36,13 @@ public class Multipole extends Rotatable {
     private void createMultipole(int poles, double q, double d) {
         for (int i = 0; i < poles; i++) {
             addCharge(new PointCharge(
-                getPosition().add(xAboutD(poles, i, d), 0, zAboutD(poles, i, d)), 
+                rotz.transform(
+                    roty.transform(
+                        rotx.transform(
+                            getPosition().add(xAboutD(poles, i, d), 0, zAboutD(poles, i, d))
+                        )
+                    )
+                ), 
                 (i % 2 == 0) ? q : -q
             ));
         }

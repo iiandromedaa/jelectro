@@ -112,7 +112,7 @@ public class View extends Application implements ListObserver {
         eField.subscribe(this);
 
         eField.createObject(new PointCharge(Point3D.ZERO, 1e-9));
-        eField.createObject(new Multipole(new Point3D(-0.5, 0, 1), 20e-9, 0.01, 2));
+        eField.createObject(new Multipole(new Point3D(-0.5, 0, 1), 20e-9, 0.01, 2, 0, 15, 45));
 
         stage.initStyle(StageStyle.UNDECORATED);
         stage.setScene(scene);
