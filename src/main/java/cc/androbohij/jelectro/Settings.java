@@ -22,7 +22,7 @@ public abstract class Settings {
      */
     public static double vectorDensity = Math.round((23/Math.pow(vectorBounds, 1.5)));
 
-    public static boolean showGrid = false;
+    public static boolean showGrid = true;
 
     public static boolean showField = false;
 
