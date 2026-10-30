@@ -17,7 +17,7 @@ public abstract class Settings {
 
     /**
      * <p>how many field vectors should we display in 1 cubic meter</p>
-     * <p><b>recommended: 23/sqrt(vectorBounds^3) 
+     * <p><b>recommended: 23/sqrt(vectorBounds^3)</p><p>
      * (i just did a regression from some values i liked to get this)</b></p>
      */
     public static double vectorDensity = Math.round((23/Math.pow(vectorBounds, 1.5)));
@@ -36,12 +36,21 @@ public abstract class Settings {
 
     public static int streamlineMaxSteps = 100;
 
+    /**
+     * <p>how many streamlines to trace from each object</p>
+     * <p><b>recommended: 100/number of objects</b></p>
+     * <p><b>but, if you have fields with smaller features 
+     * like octopoles, turn this up more</b></p>
+     */
     public static int streamlinesPerObject = 50;
+
+    public static boolean drawArrowHeads = true;
 
     /**
      * <p>at what distance from objects to begin walking streamlines forward and backwards</p>
-     * <p>recommended 0.33 for point charges and dipoles, [0.5, 1] to see the lobes of multipoles beyond 2</p>
+     * <p><b>recommended: 0.25 for point charges and dipoles,</b></p>
+     * <p><b>[0.5, 1] to see the lobes of multipoles beyond 2</b></p>
      */
-    public static double streamlineStartDistance = 0.33;
+    public static double streamlineStartDistance = 0.25;
 
 }

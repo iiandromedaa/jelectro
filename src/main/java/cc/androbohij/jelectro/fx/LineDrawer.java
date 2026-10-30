@@ -5,6 +5,7 @@ import static cc.androbohij.jelectro.Settings.vectorDensity;
 import java.util.List;
 
 import static cc.androbohij.jelectro.Settings.cullFieldVecs;
+import static cc.androbohij.jelectro.Settings.drawArrowHeads;
 
 import javafx.geometry.Point3D;
 import javafx.scene.Group;
@@ -36,7 +37,7 @@ public class LineDrawer {
             LineDrawer.class.getClassLoader().getResource("selfIllum.png").toExternalForm()));
 
         // its secretly just really thin quads
-        Line3D strip = new Line3D(0.0001f, (float)scaledLength, true);
+        Line3D strip = new Line3D(0.0001f, (float)scaledLength, drawArrowHeads);
         strip.setCullFace(CullFace.NONE);
         strip.setMaterial(mat);
         // plus wireframe mode so its always the same width onscreen
