@@ -53,6 +53,6 @@ public abstract class Settings {
      */
     public static double streamlineStartDistance = 0.25;
 
-    public static int streamlinePasses = 1;
+    public static int streamlinePasses = 2;
 
 }

@@ -70,11 +70,18 @@ public class EField {
         Point3D p = start;
         int sign = fwd ? 1 : -1;
 
+        double currentStep = stepSize;
+        double maxStep = stepSize * 5;
+
+        Point3D previousDirection = null;
+
         for (int i = 0; i < steps; i++) {
             path.add(p);
+            double minR = Double.MAX_VALUE;
             for (ChargedObject chargedObject : objects) {
                 double r = p.distance(chargedObject.getPosition());
-                if (r < 0.1 || r > 3.5) {
+                minR = Math.min(r, minR);
+                if (r < 0.1) {
                     if (!fwd)
                         Collections.reverse(path);
                     return path;
@@ -82,13 +89,25 @@ public class EField {
             }
             Point3D e = getEAtPoint(p);
             
-            if (e.magnitude() < 0.001) {
+            if (e.magnitude() < 0.001 || minR > 3.5) {
                 if (!fwd)
                     Collections.reverse(path);
                 return path;
             }
 
-            p = p.add(e.normalize().multiply(stepSize * sign));
+            Point3D direction = e.normalize().multiply(sign);
+
+            if (previousDirection != null) {
+                double alignment = previousDirection.dotProduct(direction);
+                if (alignment > 0.95) {
+                    currentStep = Math.min(currentStep * 1.2, maxStep);
+                } else if (alignment < 0.95) {
+                    currentStep = Math.max(currentStep * 0.5, stepSize);
+                }
+            }
+
+            previousDirection = direction;
+            p = p.add(direction.multiply(currentStep));
         }
 
         if (!fwd)

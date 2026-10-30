@@ -5,6 +5,8 @@ import static cc.androbohij.jelectro.Settings.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import cc.androbohij.jelectro.EField;
 import cc.androbohij.jelectro.ListObserver;
@@ -17,6 +19,7 @@ import javafx.application.Platform;
 import javafx.geometry.Point3D;
 import javafx.scene.Camera;
 import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.PerspectiveCamera;
 import javafx.scene.Scene;
 import javafx.scene.input.MouseButton;
@@ -115,9 +118,10 @@ public class View extends Application implements ListObserver {
 
         eField.subscribe(this);
 
-        eField.createObject(new PointCharge(Point3D.ZERO, 1e-10));
-        eField.createObject(new Multipole(new Point3D(-0.5, 0, 1), 20e-9, 0.01, 2, 0, 15, 45));
-        // eField.createObject(new Multipole(Point3D.ZERO, 1, 0.01, 4, 0, 0, 0));
+        // eField.createObject(new PointCharge(Point3D.ZERO, 1e-10));
+        // eField.createObject(new Multipole(new Point3D(-0.5, 0, 1), 20e-9, 0.01, 2, 0, 15, 45));
+        
+        // eField.createObject(new Multipole(Point3D.ZERO, 1e-5, 0.01, 4, 0, 0, 0));
 
         stage.initStyle(StageStyle.UNDECORATED);
         stage.setScene(scene);
@@ -180,39 +184,52 @@ public class View extends Application implements ListObserver {
     }
 
     private void drawStreamlines() {
+        long t = System.currentTimeMillis();
         streamlines.getChildren().clear();
         if (eField.isEmpty() || !showStreamlines)
             return;
-        for (int p = 0; p <= streamlinePasses; p++) {
+        for (int p = 0; p < streamlinePasses; p++) {
             for (ChargedObject co : eField.getObjects()) {
                 List<Point3D> points = fibonacciSphere(
-                    co.getPosition(), streamlineStartDistance*p, streamlinesPerObject+p);
-                for (int i = 0; i < points.size(); i++) {
-                    streamlines.getChildren().addAll(
-                        LineDrawer.draw(eField.getStreamline(points.get(i), 
+                    co.getPosition(), 
+                    streamlineStartDistance*Math.max(p, 1), 
+                    streamlinesPerObject, 2*p
+                );
+                List<Group> lines = points.parallelStream()
+                    .distinct()
+                    .map(point ->
+                        LineDrawer.draw(eField.getStreamline(point, 
                             streamlineMaxSteps, streamlineStepSize, 
-                            false)),
-                        LineDrawer.draw(eField.getStreamline(points.get(i), 
+                            true))
+                    ).collect(Collectors.toList());
+                
+                lines.addAll(points.parallelStream()
+                    .distinct()
+                    .map(point ->
+                        LineDrawer.draw(eField.getStreamline(point, 
                             streamlineMaxSteps, streamlineStepSize, 
-                            true)));
-                }
+                            false))
+                    ).collect(Collectors.toList())
+                );
+                Platform.runLater(() -> streamlines.getChildren().addAll(lines));
             }
         }
+        System.out.println(System.currentTimeMillis()-t);
     }
 
-    private List<Point3D> fibonacciSphere(Point3D center, double radius, int n) {
+    private List<Point3D> fibonacciSphere(Point3D center, double r, int n, double shift) {
         List<Point3D> points = new ArrayList<>();
         double goldenRatio = (1.0 + Math.sqrt(5.0)) / 2.0;
-        double increment = Math.PI * 2.0 * (goldenRatio - 1.0);
+        double increment = Math.PI * 2.0 * (goldenRatio - 1.0) + shift;
         for (int i = 0; i < n; i++) {
-            double inc = Math.acos(1 - (2*i)/(double)n);
+            double inc = Math.acos(1 - (2*(i))/(double)n);
             double azi = increment*i;
             points.add(
                 new Point3D(
                     Math.sin(inc) * Math.cos(azi), 
                     Math.cos(inc), 
                     Math.sin(inc) * Math.sin(azi)
-                ).multiply(radius)
+                ).multiply(r)
                 .add(center)
             );
         }
