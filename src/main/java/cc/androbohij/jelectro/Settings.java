@@ -28,6 +28,6 @@ public abstract class Settings {
 
     public static boolean Field2DOnly = true;
 
-    public static double cullFieldVecs = 0.1;
+    public static double cullFieldVecs = 0.05;
 
 }

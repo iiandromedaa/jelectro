@@ -3,7 +3,7 @@ package cc.androbohij.jelectro;
 import java.util.ArrayList;
 import java.util.List;
 
-import cc.androbohij.jelectro.shapes.ChargedObject;
+import cc.androbohij.jelectro.objects.ChargedObject;
 import javafx.geometry.Point3D;
 
 public class EField {

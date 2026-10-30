@@ -6,8 +6,8 @@ import java.util.logging.Logger;
 
 import cc.androbohij.jelectro.EField;
 import cc.androbohij.jelectro.ListObserver;
-import cc.androbohij.jelectro.shapes.ChargedObject;
-import cc.androbohij.jelectro.shapes.PointCharge;
+import cc.androbohij.jelectro.objects.ChargedObject;
+import cc.androbohij.jelectro.objects.Multipole;
 import javafx.application.Application;
 import javafx.application.ConditionalFeature;
 import javafx.application.Platform;
@@ -17,13 +17,14 @@ import javafx.scene.DepthTest;
 import javafx.scene.Group;
 import javafx.scene.PerspectiveCamera;
 import javafx.scene.Scene;
-import javafx.scene.input.KeyCode;
+import javafx.scene.image.Image;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Box;
-import javafx.scene.shape.Cylinder;
+import javafx.scene.shape.CullFace;
+import javafx.scene.shape.DrawMode;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Translate;
 import javafx.stage.Stage;
@@ -77,16 +78,25 @@ public class View extends Application implements ListObserver {
         scene.setCamera(camera);
         scene.setOnMousePressed(this::mousePressed);
         scene.setOnMouseDragged(this::mouseDrag);
+
         scene.setOnKeyPressed(event -> {
-            if (event.getCode() == KeyCode.SPACE) {
-                eField.clearObjects();
+            switch (event.getCode()) {
+                case SPACE:
+                    eField.clearObjects();
+                    break;
+                case D:
+                    Field2DOnly = !Field2DOnly;
+                    drawField();
+                    break;
+                default:
+                    break;
             }
         });
+
         scene.setFill(Color.BLACK);
 
         eField.subscribe(this);
-        eField.createObject(new PointCharge(new Point3D(0.01, 0, 0), -1e-9));
-        eField.createObject(new PointCharge(new Point3D(-0.01, 0, 0), 1e-9));
+        eField.createObject(new Multipole(Point3D.ZERO, 1e-7, 0.01, 4));
 
         stage.initStyle(StageStyle.UNDECORATED);
         stage.setScene(scene);
@@ -113,12 +123,12 @@ public class View extends Application implements ListObserver {
         mouseDownY = event.getSceneY();
     }
     
-    private Group straightPolyline(Point3D p1, Point3D p2, 
-            boolean ignoreDepth, boolean scaleLines) {
+    private Group line(Point3D p1, Point3D p2, 
+            boolean ignoreDepth, boolean vector) {
         Point3D directionVec = p2.subtract(p1);
         double length = directionVec.magnitude();
 
-        double scale = scaleLines ? Math.min(length, 1/vectorDensity) / length : 1.0;
+        double scale = vector ? Math.min(length, 1/vectorDensity) / length : 1.0;
 
         Point3D scaledVec = directionVec.multiply(scale);
         double scaledLength = scaledVec.magnitude();
@@ -127,12 +137,20 @@ public class View extends Application implements ListObserver {
         if (length == 0 || scaledLength < cullFieldVecs)
             return new Group();
 
-        Cylinder cylinder = new Cylinder(0.005, scaledLength, 3);
-        cylinder.setMaterial(new PhongMaterial(Color.WHITE));
-        if (ignoreDepth)
-            cylinder.setDepthTest(DepthTest.DISABLE);
+        PhongMaterial mat = new PhongMaterial(Color.WHITE);
+        mat.setSelfIlluminationMap(
+            new Image(getClass().getResource("/selfIllum.png").toExternalForm()));
 
-        Group line = new Group(cylinder);
+        // its secretly just really thin quads
+        Line3D strip = new Line3D(0.0001f, (float)scaledLength, true);
+        strip.setCullFace(CullFace.NONE);
+        strip.setMaterial(mat);
+        // plus wireframe mode so its always the same width onscreen
+        strip.setDrawMode(DrawMode.LINE);
+        if (ignoreDepth)
+            strip.setDepthTest(DepthTest.DISABLE);
+
+        Group line = new Group(strip);
 
         line.getTransforms().addAll(
             new Translate(mid.getX(), mid.getY(), mid.getZ()),
@@ -143,29 +161,31 @@ public class View extends Application implements ListObserver {
         return line;
     }
 
-    private Group straightPolyline(Point3D p1, Point3D p2, boolean ignoreDepth) {
-        return straightPolyline(p1, p2, ignoreDepth, false);
+    private Group line(Point3D p1, Point3D p2, boolean ignoreDepth) {
+        return line(p1, p2, ignoreDepth, false);
     }
 
     private void makeGrid() {
         root.getChildren().addAll(
-            straightPolyline(new Point3D(5, 0, 0), new Point3D(-5, 0, 0), true),
-            straightPolyline(new Point3D(0, 0, 5), new Point3D(0, 0, -5), true)
+            line(new Point3D(-5, 0, 0), new Point3D(5, 0, 0), true),
+            line(new Point3D(0, 0, -5), new Point3D(0, 0, 5), true)
         );
     }
 
-    private void displayFieldVectors() {
+    private void drawField() {
         fieldVectors.getChildren().clear();
         if (eField.isEmpty())
             return;
-        for (double i = -vectorBounds*vectorDensity; i < vectorBounds*vectorDensity; i++) {
-            for (double j = -vectorBounds*vectorDensity; j < vectorBounds*vectorDensity; j++) {
-                for (double k = -vectorBounds*vectorDensity; k <vectorBounds*vectorDensity; k++) {
+        double xyMax = vectorBounds*vectorDensity;
+        double zMax = Field2DOnly ? 0 : xyMax;
+        for (double i = -xyMax; i <= xyMax; i++) {
+            for (double j = -xyMax; j <= xyMax; j++) {
+                for (double k = -zMax; k <= zMax; k++) {
                     double x = i / vectorDensity;
-                    double y = (Field2DOnly) ? 0 : k / vectorDensity;
+                    double y = k / vectorDensity;
                     double z = j / vectorDensity;
                     Point3D currentP = new Point3D(x, y, z);
-                    Group line = straightPolyline(
+                    Group line = line(
                         currentP,
                         eField.getEAtPoint(currentP).add(currentP), 
                         false,
@@ -182,21 +202,21 @@ public class View extends Application implements ListObserver {
     public void listAdd(ChargedObject chargedObject) {
         objects.getChildren().add(chargedObject.getShape());
         if (showField)
-            displayFieldVectors();
+            drawField();
     }
 
     @Override
     public void listRemove(ChargedObject chargedObject) {
         objects.getChildren().remove(chargedObject.getShape());
         if (showField)
-            displayFieldVectors();
+            drawField();
     }
 
     @Override
     public void listClear() {
         objects.getChildren().clear();
         if (showField)
-            displayFieldVectors();
+            drawField();
     }
 
 }

@@ -1,17 +1,19 @@
-package cc.androbohij.jelectro.shapes;
+package cc.androbohij.jelectro.objects;
 
 import javafx.geometry.Point3D;
-import javafx.scene.shape.Shape3D;
+import javafx.scene.Group;
+import javafx.scene.Node;
 
 public abstract class ChargedObject {
     
-    Point3D position;
-    double charge;
-    Shape3D shape;
+    private Point3D position;
+    private double charge;
+    private Group shape;
 
     public ChargedObject(Point3D position, double charge) {
         this.position = position;
         this.charge = charge;
+        this.shape = new Group();
     }
 
     /**
@@ -29,8 +31,20 @@ public abstract class ChargedObject {
         return position;
     }
 
-    public Shape3D getShape() {
+    public Group getShape() {
         return shape;
+    }
+
+    public void setCharge(double charge) {
+        this.charge = charge;
+    }
+
+    public void setPosition(Point3D position) {
+        this.position = position;
+    }
+
+    protected void addShape(Node node) {
+        shape.getChildren().add(node);
     }
 
 }

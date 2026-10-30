@@ -1,6 +1,6 @@
 package cc.androbohij.jelectro;
 
-import cc.androbohij.jelectro.shapes.ChargedObject;
+import cc.androbohij.jelectro.objects.ChargedObject;
 
 public interface ListObserver {
     
