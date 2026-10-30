@@ -1,6 +1,7 @@
 package cc.androbohij.jelectro;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import cc.androbohij.jelectro.objects.ChargedObject;
@@ -56,8 +57,43 @@ public class EField {
         observers.add(observer);
     }
 
+    public List<ChargedObject> getObjects() {
+        return objects;
+    }
+
     public boolean isEmpty() {
         return objects.isEmpty();
+    }
+
+    public List<Point3D> getStreamline(Point3D start, int steps, double stepSize, boolean fwd) {
+        ArrayList<Point3D> path = new ArrayList<>();
+        Point3D p = start;
+        int sign = fwd ? 1 : -1;
+
+        for (int i = 0; i < steps; i++) {
+            path.add(p);
+            for (ChargedObject chargedObject : objects) {
+                double r = p.distance(chargedObject.getPosition());
+                if (r < 0.1 || r > 2.5) {
+                    if (!fwd)
+                        Collections.reverse(path);
+                    return path;
+                }
+            }
+            Point3D e = getEAtPoint(p);
+            
+            if (e.magnitude() < 0.01) {
+                if (!fwd)
+                    Collections.reverse(path);
+                return path;
+            }
+
+            p = p.add(e.normalize().multiply(stepSize * sign));
+        }
+
+        if (!fwd)
+            Collections.reverse(path);
+        return path;
     }
 
 }

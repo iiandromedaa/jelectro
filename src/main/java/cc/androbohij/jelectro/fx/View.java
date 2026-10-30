@@ -2,31 +2,29 @@ package cc.androbohij.jelectro.fx;
 
 import static cc.androbohij.jelectro.Settings.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
 import cc.androbohij.jelectro.EField;
 import cc.androbohij.jelectro.ListObserver;
 import cc.androbohij.jelectro.objects.ChargedObject;
 import cc.androbohij.jelectro.objects.Multipole;
+import cc.androbohij.jelectro.objects.PointCharge;
 import javafx.application.Application;
 import javafx.application.ConditionalFeature;
 import javafx.application.Platform;
 import javafx.geometry.Point3D;
 import javafx.scene.Camera;
-import javafx.scene.DepthTest;
 import javafx.scene.Group;
 import javafx.scene.PerspectiveCamera;
 import javafx.scene.Scene;
-import javafx.scene.image.Image;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Box;
-import javafx.scene.shape.CullFace;
-import javafx.scene.shape.DrawMode;
 import javafx.scene.transform.Rotate;
-import javafx.scene.transform.Translate;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
@@ -36,6 +34,8 @@ public class View extends Application implements ListObserver {
     private Group root;
     private Group objects;
     private Group fieldVectors;
+    private Group grid;
+    private Group streamlines;
     private Camera camera;
 
     private double mouseDownX;
@@ -55,6 +55,8 @@ public class View extends Application implements ListObserver {
         root = new Group();
         objects = new Group();
         fieldVectors = new Group();
+        grid = new Group();
+        streamlines = new Group();
         camera = new PerspectiveCamera(true);
         camPitch = new Rotate(0, Rotate.X_AXIS);
         camYaw = new Rotate(0, Rotate.Y_AXIS);
@@ -67,8 +69,8 @@ public class View extends Application implements ListObserver {
 
         Box mousePlane = new Box(10,0.01,10);
         mousePlane.setMaterial(new PhongMaterial(new Color(0, 0, 0, 0)));
-        makeGrid();
-        root.getChildren().addAll(mousePlane, objects, fieldVectors);
+        drawGrid();
+        root.getChildren().addAll(mousePlane, objects, fieldVectors, grid, streamlines);
 
         Group cameraPivot = new Group(camera);
         camera.setTranslateZ(-10);
@@ -85,8 +87,20 @@ public class View extends Application implements ListObserver {
                     eField.clearObjects();
                     break;
                 case D:
-                    Field2DOnly = !Field2DOnly;
+                    field2DOnly = !field2DOnly;
                     drawField();
+                    break;
+                case S:
+                    showStreamlines = !showStreamlines;
+                    drawStreamlines();
+                    break;
+                case F:
+                    showField = !showField;
+                    drawField();
+                    break;
+                case G:
+                    showGrid = !showGrid;
+                    drawGrid();
                     break;
                 default:
                     break;
@@ -96,7 +110,9 @@ public class View extends Application implements ListObserver {
         scene.setFill(Color.BLACK);
 
         eField.subscribe(this);
-        eField.createObject(new Multipole(Point3D.ZERO, 1e-7, 0.01, 4));
+
+        eField.createObject(new PointCharge(Point3D.ZERO, 1e-9));
+        eField.createObject(new Multipole(new Point3D(-0.5, 0, 1), 20e-9, 0.01, 2));
 
         stage.initStyle(StageStyle.UNDECORATED);
         stage.setScene(scene);
@@ -122,62 +138,23 @@ public class View extends Application implements ListObserver {
         mouseDownX = event.getSceneX();
         mouseDownY = event.getSceneY();
     }
-    
-    private Group line(Point3D p1, Point3D p2, 
-            boolean ignoreDepth, boolean vector) {
-        Point3D directionVec = p2.subtract(p1);
-        double length = directionVec.magnitude();
 
-        double scale = vector ? Math.min(length, 1/vectorDensity) / length : 1.0;
-
-        Point3D scaledVec = directionVec.multiply(scale);
-        double scaledLength = scaledVec.magnitude();
-        Point3D mid = p1.add(scaledVec.multiply(0.5));
-
-        if (length == 0 || scaledLength < cullFieldVecs)
-            return new Group();
-
-        PhongMaterial mat = new PhongMaterial(Color.WHITE);
-        mat.setSelfIlluminationMap(
-            new Image(getClass().getResource("/selfIllum.png").toExternalForm()));
-
-        // its secretly just really thin quads
-        Line3D strip = new Line3D(0.0001f, (float)scaledLength, true);
-        strip.setCullFace(CullFace.NONE);
-        strip.setMaterial(mat);
-        // plus wireframe mode so its always the same width onscreen
-        strip.setDrawMode(DrawMode.LINE);
-        if (ignoreDepth)
-            strip.setDepthTest(DepthTest.DISABLE);
-
-        Group line = new Group(strip);
-
-        line.getTransforms().addAll(
-            new Translate(mid.getX(), mid.getY(), mid.getZ()),
-            new Rotate(-scaledVec.angle(Rotate.Y_AXIS),
-                scaledVec.crossProduct(Rotate.Y_AXIS))
-        );
-        line.setMouseTransparent(true);
-        return line;
-    }
-
-    private Group line(Point3D p1, Point3D p2, boolean ignoreDepth) {
-        return line(p1, p2, ignoreDepth, false);
-    }
-
-    private void makeGrid() {
-        root.getChildren().addAll(
-            line(new Point3D(-5, 0, 0), new Point3D(5, 0, 0), true),
-            line(new Point3D(0, 0, -5), new Point3D(0, 0, 5), true)
+    private void drawGrid() {
+        grid.getChildren().clear();
+        if (!showGrid)
+            return;
+        grid.getChildren().addAll(
+            LineDrawer.draw(new Point3D(-5, 0, 0), new Point3D(5, 0, 0), false),
+            LineDrawer.draw(new Point3D(0, 0, -5), new Point3D(0, 0, 5), false)
         );
     }
 
     private void drawField() {
         fieldVectors.getChildren().clear();
-        if (eField.isEmpty())
+        if (eField.isEmpty() || !showField)
             return;
         double xyMax = vectorBounds*vectorDensity;
-        double zMax = Field2DOnly ? 0 : xyMax;
+        double zMax = field2DOnly ? 0 : xyMax;
         for (double i = -xyMax; i <= xyMax; i++) {
             for (double j = -xyMax; j <= xyMax; j++) {
                 for (double k = -zMax; k <= zMax; k++) {
@@ -185,10 +162,9 @@ public class View extends Application implements ListObserver {
                     double y = k / vectorDensity;
                     double z = j / vectorDensity;
                     Point3D currentP = new Point3D(x, y, z);
-                    Group line = line(
+                    Group line = LineDrawer.draw(
                         currentP,
-                        eField.getEAtPoint(currentP).add(currentP), 
-                        false,
+                        eField.getEAtPoint(currentP).add(currentP),
                         true
                     );
                     if (!line.getChildren().isEmpty())
@@ -198,25 +174,65 @@ public class View extends Application implements ListObserver {
         }
     }
 
+    private void drawStreamlines() {
+        streamlines.getChildren().clear();
+        if (eField.isEmpty() || !showStreamlines)
+            return;
+        for (ChargedObject co : eField.getObjects()) {
+            List<Point3D> points = fibonacciSphere(
+                co.getPosition(), 0.25, streamlinesPerObject);
+                
+            for (int i = 0; i < points.size(); i++) {
+                streamlines.getChildren().addAll(
+                    LineDrawer.draw(eField.getStreamline(points.get(i), 
+                        streamlineMaxSteps, streamlineStepSize, 
+                        false)),
+                    LineDrawer.draw(eField.getStreamline(points.get(i), 
+                        streamlineMaxSteps, streamlineStepSize, 
+                        true)));
+            }
+        }
+
+    }
+
+    private List<Point3D> fibonacciSphere(Point3D center, double radius, int n) {
+        List<Point3D> points = new ArrayList<>();
+        double goldenRatio = (1.0 + Math.sqrt(5.0)) / 2.0;
+        double increment = Math.PI * 2.0 * (goldenRatio - 1.0);
+        for (int i = 0; i < n; i++) {
+            double inc = Math.acos(1 - (2*i)/(double)n);
+            double azi = increment*i;
+            points.add(
+                new Point3D(
+                    Math.sin(inc) * Math.cos(azi), 
+                    Math.cos(inc), 
+                    Math.sin(inc) * Math.sin(azi)
+                ).multiply(radius)
+                .add(center)
+            );
+        }
+        return points;
+    }
+
     @Override
     public void listAdd(ChargedObject chargedObject) {
         objects.getChildren().add(chargedObject.getShape());
-        if (showField)
-            drawField();
+        drawField();
+        drawStreamlines();
     }
 
     @Override
     public void listRemove(ChargedObject chargedObject) {
         objects.getChildren().remove(chargedObject.getShape());
-        if (showField)
-            drawField();
+        drawField();
+        drawStreamlines();
     }
 
     @Override
     public void listClear() {
         objects.getChildren().clear();
-        if (showField)
-            drawField();
+        drawField();
+        drawStreamlines();
     }
 
 }

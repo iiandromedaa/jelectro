@@ -22,12 +22,20 @@ public abstract class Settings {
      */
     public static double vectorDensity = Math.round((23/Math.pow(vectorBounds, 1.5)));
 
-    public static boolean displayGrid = true;
+    public static boolean showGrid = false;
 
-    public static boolean showField = true;
+    public static boolean showField = false;
 
-    public static boolean Field2DOnly = true;
+    public static boolean showStreamlines = true;
 
-    public static double cullFieldVecs = 0.05;
+    public static boolean field2DOnly = true;
+
+    public static double cullFieldVecs = 0.01;
+
+    public static double streamlineStepSize = 0.1;
+
+    public static int streamlineMaxSteps = 50;
+
+    public static int streamlinesPerObject = 50;
 
 }

@@ -5,7 +5,7 @@ import java.util.List;
 
 import javafx.geometry.Point3D;
 
-public class Multipole extends ChargedObject {
+public class Multipole extends Rotatable {
 
     private List<PointCharge> charges;
 

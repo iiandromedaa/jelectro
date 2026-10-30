@@ -19,7 +19,7 @@ public class Line3D extends MeshView {
             (width/2), height/2, 0f,
             (width/2)+0.025f, (height/2)-0.025f, 0f,
             (width/2), height/2, 0f,
-            
+
             (width/2), height/2, 0f,
             (width/2)-0.025f, (height/2)-0.025f, 0f,
             (width/2), height/2, 0f
