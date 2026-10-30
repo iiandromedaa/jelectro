@@ -74,7 +74,7 @@ public class EField {
             path.add(p);
             for (ChargedObject chargedObject : objects) {
                 double r = p.distance(chargedObject.getPosition());
-                if (r < 0.1 || r > 2.5) {
+                if (r < 0.1 || r > 3.5) {
                     if (!fwd)
                         Collections.reverse(path);
                     return path;
@@ -82,7 +82,7 @@ public class EField {
             }
             Point3D e = getEAtPoint(p);
             
-            if (e.magnitude() < 0.01) {
+            if (e.magnitude() < 0.001) {
                 if (!fwd)
                     Collections.reverse(path);
                 return path;

@@ -102,6 +102,10 @@ public class View extends Application implements ListObserver {
                     showGrid = !showGrid;
                     drawGrid();
                     break;
+                case A:
+                    drawArrowHeads = !drawArrowHeads;
+                    drawField();
+                    drawStreamlines();
                 default:
                     break;
             }
@@ -111,9 +115,9 @@ public class View extends Application implements ListObserver {
 
         eField.subscribe(this);
 
-        // eField.createObject(new PointCharge(Point3D.ZERO, 1e-9));
-        // eField.createObject(new Multipole(new Point3D(-0.5, 0, 1), 20e-9, 0.01, 2, 0, 15, 45));
-        eField.createObject(new Multipole(Point3D.ZERO, 1, 0.01, 2, 0, 0, 0));
+        eField.createObject(new PointCharge(Point3D.ZERO, 1e-10));
+        eField.createObject(new Multipole(new Point3D(-0.5, 0, 1), 20e-9, 0.01, 2, 0, 15, 45));
+        // eField.createObject(new Multipole(Point3D.ZERO, 1, 0.01, 4, 0, 0, 0));
 
         stage.initStyle(StageStyle.UNDECORATED);
         stage.setScene(scene);
@@ -179,21 +183,21 @@ public class View extends Application implements ListObserver {
         streamlines.getChildren().clear();
         if (eField.isEmpty() || !showStreamlines)
             return;
-        for (ChargedObject co : eField.getObjects()) {
-            List<Point3D> points = fibonacciSphere(
-                co.getPosition(), streamlineStartDistance, streamlinesPerObject);
-                
-            for (int i = 0; i < points.size(); i++) {
-                streamlines.getChildren().addAll(
-                    LineDrawer.draw(eField.getStreamline(points.get(i), 
-                        streamlineMaxSteps, streamlineStepSize, 
-                        false)),
-                    LineDrawer.draw(eField.getStreamline(points.get(i), 
-                        streamlineMaxSteps, streamlineStepSize, 
-                        true)));
+        for (int p = 0; p <= streamlinePasses; p++) {
+            for (ChargedObject co : eField.getObjects()) {
+                List<Point3D> points = fibonacciSphere(
+                    co.getPosition(), streamlineStartDistance*p, streamlinesPerObject+p);
+                for (int i = 0; i < points.size(); i++) {
+                    streamlines.getChildren().addAll(
+                        LineDrawer.draw(eField.getStreamline(points.get(i), 
+                            streamlineMaxSteps, streamlineStepSize, 
+                            false)),
+                        LineDrawer.draw(eField.getStreamline(points.get(i), 
+                            streamlineMaxSteps, streamlineStepSize, 
+                            true)));
+                }
             }
         }
-
     }
 
     private List<Point3D> fibonacciSphere(Point3D center, double radius, int n) {

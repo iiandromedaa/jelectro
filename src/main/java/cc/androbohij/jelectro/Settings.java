@@ -30,7 +30,7 @@ public abstract class Settings {
 
     public static boolean field2DOnly = true;
 
-    public static double cullFieldVecs = 0.01;
+    public static double cullFieldVecs = 0.05;
 
     public static double streamlineStepSize = 0.1;
 
@@ -52,5 +52,7 @@ public abstract class Settings {
      * <p><b>[0.5, 1] to see the lobes of multipoles beyond 2</b></p>
      */
     public static double streamlineStartDistance = 0.25;
+
+    public static int streamlinePasses = 1;
 
 }
