@@ -1,6 +1,8 @@
 package cc.androbohij.jelectro.fx;
 
+import javafx.geometry.Point3D;
 import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Translate;
 
@@ -26,6 +28,14 @@ public class Handle extends Group {
         rx.setAngle(x);
         ry.setAngle(y);
         rz.setAngle(z);
+    }
+
+    public void add(Node node) {
+        getChildren().add(node);
+    }
+
+    public Point3D getPosition() {
+        return new Point3D(translate.getX(), translate.getY(), translate.getZ());
     }
 
 }

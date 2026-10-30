@@ -34,8 +34,14 @@ public abstract class Settings {
 
     public static double streamlineStepSize = 0.1;
 
-    public static int streamlineMaxSteps = 50;
+    public static int streamlineMaxSteps = 100;
 
     public static int streamlinesPerObject = 50;
+
+    /**
+     * <p>at what distance from objects to begin walking streamlines forward and backwards</p>
+     * <p>recommended 0.33 for point charges and dipoles, [0.5, 1] to see the lobes of multipoles beyond 2</p>
+     */
+    public static double streamlineStartDistance = 0.33;
 
 }

@@ -111,8 +111,9 @@ public class View extends Application implements ListObserver {
 
         eField.subscribe(this);
 
-        eField.createObject(new PointCharge(Point3D.ZERO, 1e-9));
-        eField.createObject(new Multipole(new Point3D(-0.5, 0, 1), 20e-9, 0.01, 2, 0, 15, 45));
+        // eField.createObject(new PointCharge(Point3D.ZERO, 1e-9));
+        // eField.createObject(new Multipole(new Point3D(-0.5, 0, 1), 20e-9, 0.01, 2, 0, 15, 45));
+        eField.createObject(new Multipole(Point3D.ZERO, 1, 0.01, 2, 0, 0, 0));
 
         stage.initStyle(StageStyle.UNDECORATED);
         stage.setScene(scene);
@@ -180,7 +181,7 @@ public class View extends Application implements ListObserver {
             return;
         for (ChargedObject co : eField.getObjects()) {
             List<Point3D> points = fibonacciSphere(
-                co.getPosition(), 0.25, streamlinesPerObject);
+                co.getPosition(), streamlineStartDistance, streamlinesPerObject);
                 
             for (int i = 0; i < points.size(); i++) {
                 streamlines.getChildren().addAll(
