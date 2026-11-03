@@ -10,8 +10,8 @@ public class Multipole extends ChargedObject {
     private List<PointCharge> charges;
 
     public Multipole(Point3D position, double q, double d, int poles, 
-        double rx, double ry, double rz) {
-        super(position, 0, rx, ry, rz);
+        double rx, double ry, double rz, boolean child) {
+        super(position, 0, rx, ry, rz, child);
         charges = new ArrayList<>();
         createMultipole(poles, q, d);
     }
@@ -31,27 +31,14 @@ public class Multipole extends ChargedObject {
     private void addCharge(PointCharge pointCharge) {
         charges.add(pointCharge);
         getHandle().getChildren().add(pointCharge.getHandle());
-        // System.out.println(pointCharge.getPosition());
-        // System.out.println(getPosition());
-    }
-
-    @Override
-    public Point3D getPosition() {
-        // System.out.println(getHandle().getPosition());
-        return getHandle().getPosition();
     }
 
     private void createMultipole(int poles, double q, double d) {
         for (int i = 0; i < poles; i++) {
             addCharge(new PointCharge(
-                // getHandle().rz.transform(
-                    // getHandle().ry.transform(
-                        // getHandle().rx.transform(
-                            new Point3D(xAboutD(poles, i, d), 0, zAboutD(poles, i, d)),
-                        // )
-                    // )
-                // ), 
-                (i % 2 == 0) ? q : -q
+                new Point3D(xAboutD(poles, i, d), 0, zAboutD(poles, i, d)),
+                (i % 2 == 0) ? q : -q,
+                true
             ));
         }
     }

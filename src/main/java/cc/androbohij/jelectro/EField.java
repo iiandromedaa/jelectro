@@ -71,7 +71,7 @@ public class EField {
         int sign = fwd ? 1 : -1;
 
         double currentStep = stepSize;
-        double maxStep = stepSize * 5;
+        double maxStep = stepSize * 15;
 
         Point3D previousDirection = null;
 
@@ -80,8 +80,6 @@ public class EField {
             double minR = Double.MAX_VALUE;
             for (ChargedObject chargedObject : objects) {
                 double r = p.distance(chargedObject.getPosition());
-                // System.out.println(objects.size());
-                // System.out.println(r);
                 minR = Math.min(r, minR);
                 if (r < 0.1) {
                     if (!fwd)

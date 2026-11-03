@@ -26,7 +26,7 @@ public abstract class Settings {
 
     public static boolean showField = false;
 
-    public static boolean showStreamlines = true;
+    public static boolean showStreamlines = false;
 
     public static boolean field2DOnly = true;
 
@@ -44,7 +44,7 @@ public abstract class Settings {
      */
     public static int streamlinesPerObject = 20;
 
-    public static boolean drawArrowHeads = true;
+    public static boolean drawArrowHeads = false;
 
     /**
      * <p>at what distance from objects to begin walking streamlines forward and backwards</p>

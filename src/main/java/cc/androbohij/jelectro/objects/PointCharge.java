@@ -9,14 +9,18 @@ import javafx.scene.shape.Sphere;
 
 public class PointCharge extends ChargedObject {
 
-    public PointCharge(Point3D position, double charge) {
-        super(position, charge);
+    public PointCharge(Point3D position, double charge, boolean child) {
+        super(position, charge, child);
         Shape3D sphere = new Sphere(0.1);
         if (charge > 0)
             sphere.setMaterial(new PhongMaterial(Color.RED));
         else if (charge < 0)
             sphere.setMaterial(new PhongMaterial(Color.DEEPSKYBLUE));
         addShape(sphere);
+    }
+    
+    public PointCharge(Point3D position, double charge) {
+        this(position, charge, false);
     }
 
     public Point3D getE(Point3D p) {

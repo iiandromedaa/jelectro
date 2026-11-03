@@ -109,6 +109,10 @@ public class View extends Application implements ListObserver {
                     drawArrowHeads = !drawArrowHeads;
                     drawField();
                     drawStreamlines();
+                    break;
+                case M:
+                    eField.createObject(new Multipole(Point3D.ZERO, 1e-5, 0.01, 4, 0, 0, 0, false));
+                    break;
                 default:
                     break;
             }
@@ -118,23 +122,8 @@ public class View extends Application implements ListObserver {
 
         eField.subscribe(this);
 
-        eField.createObject(new PointCharge(new Point3D(0, 1, 2), 1e-10));
-        eField.createObject(new Multipole(new Point3D(-0.5, 0, 1), 20e-9, 0.01, 2, 0, 15, 45));
-
-        for (ChargedObject co : eField.getObjects()) {
-                List<Point3D> points = fibonacciSphere(
-                    co.getPosition(), 
-                    streamlineStartDistance, 
-                    streamlinesPerObject, 0
-                );
-                for (Point3D point3d : points) {
-                    objects.getChildren().add(LineDrawer.draw(point3d, point3d.add(0, 0.05, 0)));
-                }
-        }
-
-        // drawStreamlines();
-        
-        // eField.createObject(new Multipole(Point3D.ZERO, 1e-5, 0.01, 4, 0, 0, 0));
+        eField.createObject(new PointCharge(new Point3D(0, 0, 0), 1e-10));
+        eField.createObject(new Multipole(new Point3D(-0.5, 0, 1), 5e-9, 0.01, 2, 0, 15, 45, false));
 
         stage.initStyle(StageStyle.UNDECORATED);
         stage.setScene(scene);
@@ -208,6 +197,7 @@ public class View extends Application implements ListObserver {
                     streamlineStartDistance*Math.max(p, 1), 
                     streamlinesPerObject, 2*p
                 );
+                System.out.println(points.size());
                 List<Group> lines = points.parallelStream()
                     .distinct()
                     .map(point ->
@@ -253,7 +243,7 @@ public class View extends Application implements ListObserver {
     public void listAdd(ChargedObject chargedObject) {
         objects.getChildren().add(chargedObject.getHandle());
         drawField();
-        // drawStreamlines();
+        drawStreamlines();
     }
 
     @Override

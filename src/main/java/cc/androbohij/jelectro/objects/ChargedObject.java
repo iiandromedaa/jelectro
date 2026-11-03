@@ -9,17 +9,23 @@ public abstract class ChargedObject {
 
     private double charge;
     private Handle handle;
+    private boolean child;
 
-    public ChargedObject(Point3D position, double charge, double rx, double ry, double rz) {
+    public ChargedObject(Point3D position, double charge, 
+        double rx, double ry, double rz, boolean child) {
         handle = new Handle();
-        System.out.println(position);
         handle.translate(position);
         handle.rotate(rx, ry, rz);
         this.charge = charge;
+        this.child = child;
+    }
+
+    public ChargedObject(Point3D position, double charge, boolean child) {
+        this(position, charge, 0, 0, 0, child);
     }
 
     public ChargedObject(Point3D position, double charge) {
-        this(position, charge, 0, 0, 0);
+        this(position, charge, 0, 0, 0, false);
     }
 
     /**
@@ -34,8 +40,10 @@ public abstract class ChargedObject {
     }
 
     public Point3D getPosition() {
-        System.out.println(handle.localToScene(handle.getPosition()));
-        return handle.localToScene(handle.getPosition());
+        if (child)
+            return getHandle().localToScene(getHandle().getPosition());
+        else
+            return handle.getPosition();
     }
 
     public Handle getHandle() {
