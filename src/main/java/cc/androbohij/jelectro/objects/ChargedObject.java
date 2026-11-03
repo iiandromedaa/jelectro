@@ -2,7 +2,6 @@ package cc.androbohij.jelectro.objects;
 
 import cc.androbohij.jelectro.fx.Handle;
 import javafx.geometry.Point3D;
-import javafx.scene.Group;
 import javafx.scene.Node;
 
 public abstract class ChargedObject {
@@ -11,6 +10,8 @@ public abstract class ChargedObject {
     private Handle handle;
     private boolean child;
 
+    // TODO: BUILDER PATTERN !!!!!!!!!!!!
+    // TODO: although with the subclasses off this, might require CRTP
     public ChargedObject(Point3D position, double charge, 
         double rx, double ry, double rz, boolean child) {
         handle = new Handle();

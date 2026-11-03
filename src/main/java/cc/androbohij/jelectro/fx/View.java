@@ -6,8 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import cc.androbohij.jelectro.EField;
 import cc.androbohij.jelectro.ListObserver;
 import cc.androbohij.jelectro.objects.ChargedObject;
@@ -19,7 +17,6 @@ import javafx.application.Platform;
 import javafx.geometry.Point3D;
 import javafx.scene.Camera;
 import javafx.scene.Group;
-import javafx.scene.Node;
 import javafx.scene.PerspectiveCamera;
 import javafx.scene.Scene;
 import javafx.scene.input.MouseButton;
@@ -84,6 +81,8 @@ public class View extends Application implements ListObserver {
         scene.setOnMousePressed(this::mousePressed);
         scene.setOnMouseDragged(this::mouseDrag);
 
+        // TODO: move this to its own method
+        // TODO: or a static class holding the input handling methods?
         scene.setOnKeyPressed(event -> {
             switch (event.getCode()) {
                 case SPACE:
@@ -110,9 +109,6 @@ public class View extends Application implements ListObserver {
                     drawField();
                     drawStreamlines();
                     break;
-                case M:
-                    eField.createObject(new Multipole(Point3D.ZERO, 1e-5, 0.01, 4, 0, 0, 0, false));
-                    break;
                 default:
                     break;
             }
@@ -122,6 +118,7 @@ public class View extends Application implements ListObserver {
 
         eField.subscribe(this);
 
+        // TODO: object creation UI, making objects in scene init can cause races
         eField.createObject(new PointCharge(new Point3D(0, 0, 0), 1e-10));
         eField.createObject(new Multipole(new Point3D(-0.5, 0, 1), 5e-9, 0.01, 2, 0, 15, 45, false));
 
