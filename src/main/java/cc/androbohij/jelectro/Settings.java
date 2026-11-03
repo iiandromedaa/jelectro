@@ -42,7 +42,7 @@ public abstract class Settings {
      * <p><b>but, if you have fields with smaller features 
      * like octopoles, turn this up more</b></p>
      */
-    public static int streamlinesPerObject = 50;
+    public static int streamlinesPerObject = 20;
 
     public static boolean drawArrowHeads = true;
 
@@ -51,8 +51,8 @@ public abstract class Settings {
      * <p><b>recommended: 0.25 for point charges and dipoles,</b></p>
      * <p><b>[0.5, 1] to see the lobes of multipoles beyond 2</b></p>
      */
-    public static double streamlineStartDistance = 0.25;
+    public static double streamlineStartDistance = 0.33;
 
-    public static int streamlinePasses = 2;
+    public static int streamlinePasses = 1;
 
 }

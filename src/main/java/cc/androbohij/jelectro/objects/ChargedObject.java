@@ -1,19 +1,25 @@
 package cc.androbohij.jelectro.objects;
 
+import cc.androbohij.jelectro.fx.Handle;
 import javafx.geometry.Point3D;
 import javafx.scene.Group;
 import javafx.scene.Node;
 
 public abstract class ChargedObject {
-    
-    private Point3D position;
+
     private double charge;
-    private Group shape;
+    private Handle handle;
+
+    public ChargedObject(Point3D position, double charge, double rx, double ry, double rz) {
+        handle = new Handle();
+        System.out.println(position);
+        handle.translate(position);
+        handle.rotate(rx, ry, rz);
+        this.charge = charge;
+    }
 
     public ChargedObject(Point3D position, double charge) {
-        this.position = position;
-        this.charge = charge;
-        this.shape = new Group();
+        this(position, charge, 0, 0, 0);
     }
 
     /**
@@ -28,11 +34,12 @@ public abstract class ChargedObject {
     }
 
     public Point3D getPosition() {
-        return position;
+        System.out.println(handle.localToScene(handle.getPosition()));
+        return handle.localToScene(handle.getPosition());
     }
 
-    public Group getShape() {
-        return shape;
+    public Handle getHandle() {
+        return handle;
     }
 
     public void setCharge(double charge) {
@@ -40,11 +47,11 @@ public abstract class ChargedObject {
     }
 
     public void setPosition(Point3D position) {
-        this.position = position;
+        handle.translate(position);
     }
 
     protected void addShape(Node node) {
-        shape.getChildren().add(node);
+        handle.getChildren().add(node);
     }
 
 }

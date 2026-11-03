@@ -80,6 +80,8 @@ public class EField {
             double minR = Double.MAX_VALUE;
             for (ChargedObject chargedObject : objects) {
                 double r = p.distance(chargedObject.getPosition());
+                // System.out.println(objects.size());
+                // System.out.println(r);
                 minR = Math.min(r, minR);
                 if (r < 0.1) {
                     if (!fwd)

@@ -5,7 +5,7 @@ import java.util.List;
 
 import javafx.geometry.Point3D;
 
-public class Multipole extends Rotatable {
+public class Multipole extends ChargedObject {
 
     private List<PointCharge> charges;
 
@@ -30,19 +30,27 @@ public class Multipole extends Rotatable {
 
     private void addCharge(PointCharge pointCharge) {
         charges.add(pointCharge);
-        getShape().getChildren().add(pointCharge.getShape());
+        getHandle().getChildren().add(pointCharge.getHandle());
+        // System.out.println(pointCharge.getPosition());
+        // System.out.println(getPosition());
+    }
+
+    @Override
+    public Point3D getPosition() {
+        // System.out.println(getHandle().getPosition());
+        return getHandle().getPosition();
     }
 
     private void createMultipole(int poles, double q, double d) {
         for (int i = 0; i < poles; i++) {
             addCharge(new PointCharge(
-                rotz.transform(
-                    roty.transform(
-                        rotx.transform(
-                            getPosition().add(xAboutD(poles, i, d), 0, zAboutD(poles, i, d))
-                        )
-                    )
-                ), 
+                // getHandle().rz.transform(
+                    // getHandle().ry.transform(
+                        // getHandle().rx.transform(
+                            new Point3D(xAboutD(poles, i, d), 0, zAboutD(poles, i, d)),
+                        // )
+                    // )
+                // ), 
                 (i % 2 == 0) ? q : -q
             ));
         }

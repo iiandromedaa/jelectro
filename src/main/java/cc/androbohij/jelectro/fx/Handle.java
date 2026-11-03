@@ -24,6 +24,12 @@ public class Handle extends Group {
         translate.setZ(z);
     }
 
+    public void translate(Point3D position) {
+        translate.setX(position.getX());
+        translate.setY(position.getY());
+        translate.setZ(position.getZ());
+    }
+
     public void rotate(double x, double y, double z) {
         rx.setAngle(x);
         ry.setAngle(y);

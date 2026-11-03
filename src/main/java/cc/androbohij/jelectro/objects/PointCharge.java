@@ -17,9 +17,6 @@ public class PointCharge extends ChargedObject {
         else if (charge < 0)
             sphere.setMaterial(new PhongMaterial(Color.DEEPSKYBLUE));
         addShape(sphere);
-        getShape().setTranslateX(position.getX());
-        getShape().setTranslateY(position.getY());
-        getShape().setTranslateZ(position.getZ());
     }
 
     public Point3D getE(Point3D p) {

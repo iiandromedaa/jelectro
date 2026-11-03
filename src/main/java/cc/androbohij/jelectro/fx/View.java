@@ -118,8 +118,21 @@ public class View extends Application implements ListObserver {
 
         eField.subscribe(this);
 
-        // eField.createObject(new PointCharge(Point3D.ZERO, 1e-10));
-        // eField.createObject(new Multipole(new Point3D(-0.5, 0, 1), 20e-9, 0.01, 2, 0, 15, 45));
+        eField.createObject(new PointCharge(new Point3D(0, 1, 2), 1e-10));
+        eField.createObject(new Multipole(new Point3D(-0.5, 0, 1), 20e-9, 0.01, 2, 0, 15, 45));
+
+        for (ChargedObject co : eField.getObjects()) {
+                List<Point3D> points = fibonacciSphere(
+                    co.getPosition(), 
+                    streamlineStartDistance, 
+                    streamlinesPerObject, 0
+                );
+                for (Point3D point3d : points) {
+                    objects.getChildren().add(LineDrawer.draw(point3d, point3d.add(0, 0.05, 0)));
+                }
+        }
+
+        // drawStreamlines();
         
         // eField.createObject(new Multipole(Point3D.ZERO, 1e-5, 0.01, 4, 0, 0, 0));
 
@@ -191,7 +204,7 @@ public class View extends Application implements ListObserver {
         for (int p = 0; p < streamlinePasses; p++) {
             for (ChargedObject co : eField.getObjects()) {
                 List<Point3D> points = fibonacciSphere(
-                    co.getPosition(), 
+                    co.getPosition(),
                     streamlineStartDistance*Math.max(p, 1), 
                     streamlinesPerObject, 2*p
                 );
@@ -238,14 +251,14 @@ public class View extends Application implements ListObserver {
 
     @Override
     public void listAdd(ChargedObject chargedObject) {
-        objects.getChildren().add(chargedObject.getShape());
+        objects.getChildren().add(chargedObject.getHandle());
         drawField();
-        drawStreamlines();
+        // drawStreamlines();
     }
 
     @Override
     public void listRemove(ChargedObject chargedObject) {
-        objects.getChildren().remove(chargedObject.getShape());
+        objects.getChildren().remove(chargedObject.getHandle());
         drawField();
         drawStreamlines();
     }
