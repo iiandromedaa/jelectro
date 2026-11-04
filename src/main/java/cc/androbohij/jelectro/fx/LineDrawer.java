@@ -34,7 +34,8 @@ public class LineDrawer {
 
         PhongMaterial mat = new PhongMaterial(Color.WHITE);
         mat.setSelfIlluminationMap(new Image(
-            LineDrawer.class.getClassLoader().getResource("selfIllum.png").toExternalForm()));
+            LineDrawer.class.getClassLoader()
+            .getResource("textures/selfIllum.png").toExternalForm()));
 
         // its secretly just really thin quads
         Line3D strip = new Line3D(0.0001f, (float)scaledLength, drawArrowHeads);

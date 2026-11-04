@@ -2,10 +2,12 @@ package cc.androbohij.jelectro.fx;
 
 import static cc.androbohij.jelectro.Settings.*;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+
 import cc.androbohij.jelectro.EField;
 import cc.androbohij.jelectro.ListObserver;
 import cc.androbohij.jelectro.objects.ChargedObject;
@@ -14,16 +16,18 @@ import cc.androbohij.jelectro.objects.PointCharge;
 import javafx.application.Application;
 import javafx.application.ConditionalFeature;
 import javafx.application.Platform;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Point3D;
 import javafx.scene.Camera;
 import javafx.scene.Group;
 import javafx.scene.PerspectiveCamera;
 import javafx.scene.Scene;
+import javafx.scene.SceneAntialiasing;
+import javafx.scene.SubScene;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.PhongMaterial;
-import javafx.scene.shape.Box;
 import javafx.scene.transform.Rotate;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -37,12 +41,6 @@ public class View extends Application implements ListObserver {
     private Group grid;
     private Group streamlines;
     private Camera camera;
-
-    private double mouseDownX;
-    private double mouseDownY;
-
-    private Rotate camPitch;
-    private Rotate camYaw;
 
     private EField eField;
 
@@ -58,63 +56,25 @@ public class View extends Application implements ListObserver {
         grid = new Group();
         streamlines = new Group();
         camera = new PerspectiveCamera(true);
-        camPitch = new Rotate(0, Rotate.X_AXIS);
-        camYaw = new Rotate(0, Rotate.Y_AXIS);
         eField = EField.getInstance();
     }
 
     @Override
-    public void start(Stage stage) {
-        Scene scene = new Scene(root, 640, 480, true);
+    public void start(Stage stage) throws IOException {
+        SubScene view3d = new SubScene(root, 1200, 800, true, SceneAntialiasing.DISABLED);
 
-        Box mousePlane = new Box(10,0.01,10);
-        mousePlane.setMaterial(new PhongMaterial(new Color(0, 0, 0, 0)));
-        drawGrid();
-        root.getChildren().addAll(mousePlane, objects, fieldVectors, grid, streamlines);
+        root.getChildren().addAll(objects, fieldVectors, grid, streamlines);
 
         Group cameraPivot = new Group(camera);
         camera.setTranslateZ(-10);
         camera.setFarClip(100);
-        cameraPivot.getTransforms().addAll(camYaw, camPitch);
+        cameraPivot.getTransforms().addAll(InputHandler.getCamYaw(), InputHandler.getCamPitch());
         
-        scene.setCamera(camera);
-        scene.setOnMousePressed(this::mousePressed);
-        scene.setOnMouseDragged(this::mouseDrag);
+        view3d.setCamera(camera);
+        view3d.setOnMousePressed(InputHandler::mousePressed);
+        view3d.setOnMouseDragged(InputHandler::mouseDrag);
 
-        // TODO: move this to its own method
-        // TODO: or a static class holding the input handling methods?
-        scene.setOnKeyPressed(event -> {
-            switch (event.getCode()) {
-                case SPACE:
-                    eField.clearObjects();
-                    break;
-                case D:
-                    field2DOnly = !field2DOnly;
-                    drawField();
-                    break;
-                case S:
-                    showStreamlines = !showStreamlines;
-                    drawStreamlines();
-                    break;
-                case F:
-                    showField = !showField;
-                    drawField();
-                    break;
-                case G:
-                    showGrid = !showGrid;
-                    drawGrid();
-                    break;
-                case A:
-                    drawArrowHeads = !drawArrowHeads;
-                    drawField();
-                    drawStreamlines();
-                    break;
-                default:
-                    break;
-            }
-        });
-
-        scene.setFill(Color.BLACK);
+        view3d.setFill(Color.BLACK);
 
         eField.subscribe(this);
 
@@ -122,29 +82,33 @@ public class View extends Application implements ListObserver {
         eField.createObject(new PointCharge(new Point3D(0, 0, 0), 1e-10));
         eField.createObject(new Multipole(new Point3D(-0.5, 0, 1), 5e-9, 0.01, 2, 0, 15, 45, false));
 
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/sidebar.fxml"));
+        AnchorPane UI = loader.load();
+
+        ((Sidebar)loader.getController()).setApp(this);
+
+        UI.widthProperty().addListener((obs, oldVal, newVal) -> {
+            view3d.setWidth(newVal.doubleValue());
+        });
+
+        UI.heightProperty().addListener((obs, oldVal, newVal) -> {
+            view3d.setHeight(newVal.doubleValue());
+        });
+
+        UI.getChildren().add(0, view3d);
+
+        Scene scene = new Scene(UI, 1200, 800);
+
         stage.initStyle(StageStyle.UNDECORATED);
         stage.setScene(scene);
         stage.show();
+        refresh();
     }
 
-    private void mousePressed(MouseEvent event) {
-        if (event.getButton() != MouseButton.SECONDARY)
-            return;
-        mouseDownX = event.getSceneX();
-        mouseDownY = event.getSceneY();
-    }
-
-    private void mouseDrag(MouseEvent event) {
-        if (event.getButton() != MouseButton.SECONDARY)
-            return;
-        double dx = (event.getSceneX() - mouseDownX)*0.3;
-        double dy = (event.getSceneY() - mouseDownY)*0.3;
-
-        camPitch.setAngle(Math.max(-85, Math.min(camPitch.getAngle() - dy, 85)));
-        camYaw.setAngle(camYaw.getAngle() + dx);
-
-        mouseDownX = event.getSceneX();
-        mouseDownY = event.getSceneY();
+    public void refresh() {
+        drawGrid();
+        drawStreamlines();
+        drawField();
     }
 
     private void drawGrid() {
@@ -194,7 +158,6 @@ public class View extends Application implements ListObserver {
                     streamlineStartDistance*Math.max(p, 1), 
                     streamlinesPerObject, 2*p
                 );
-                System.out.println(points.size());
                 List<Group> lines = points.parallelStream()
                     .distinct()
                     .map(point ->
@@ -214,7 +177,7 @@ public class View extends Application implements ListObserver {
                 Platform.runLater(() -> streamlines.getChildren().addAll(lines));
             }
         }
-        System.out.println(System.currentTimeMillis()-t);
+        log.info(String.format("Streamlines took %dms", System.currentTimeMillis()-t));
     }
 
     private List<Point3D> fibonacciSphere(Point3D center, double r, int n, double shift) {
@@ -255,6 +218,44 @@ public class View extends Application implements ListObserver {
         objects.getChildren().clear();
         drawField();
         drawStreamlines();
+    }
+
+    private static class InputHandler {
+
+        private static double mouseDownX;
+        private static double mouseDownY;
+
+        private static Rotate camPitch = new Rotate(0, Rotate.X_AXIS);
+        private static Rotate camYaw = new Rotate(0, Rotate.Y_AXIS);
+
+        private static void mousePressed(MouseEvent event) {
+            if (event.getButton() != MouseButton.SECONDARY)
+                return;
+            mouseDownX = event.getSceneX();
+            mouseDownY = event.getSceneY();
+        }
+
+        private static void mouseDrag(MouseEvent event) {
+            if (event.getButton() != MouseButton.SECONDARY)
+                return;
+            double dx = (event.getSceneX() - mouseDownX)*0.3;
+            double dy = (event.getSceneY() - mouseDownY)*0.3;
+
+            camPitch.setAngle(Math.max(-85, Math.min(camPitch.getAngle() - dy, 85)));
+            camYaw.setAngle(camYaw.getAngle() + dx);
+
+            mouseDownX = event.getSceneX();
+            mouseDownY = event.getSceneY();
+        }
+
+        protected static Rotate getCamPitch() {
+            return camPitch;
+        }
+
+        protected static Rotate getCamYaw() {
+            return camYaw;
+        }
+
     }
 
 }
