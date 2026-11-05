@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 
 import cc.androbohij.jelectro.EField;
 import cc.androbohij.jelectro.ListObserver;
+import cc.androbohij.jelectro.fx.controllers.Sidebar;
 import cc.androbohij.jelectro.objects.ChargedObject;
 import cc.androbohij.jelectro.objects.Multipole;
 import cc.androbohij.jelectro.objects.PointCharge;
@@ -19,15 +20,19 @@ import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Point3D;
 import javafx.scene.Camera;
+import javafx.scene.DepthTest;
 import javafx.scene.Group;
 import javafx.scene.PerspectiveCamera;
 import javafx.scene.Scene;
 import javafx.scene.SceneAntialiasing;
 import javafx.scene.SubScene;
+import javafx.scene.image.Image;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.PhongMaterial;
+import javafx.scene.shape.Sphere;
 import javafx.scene.transform.Rotate;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -35,14 +40,12 @@ import javafx.stage.StageStyle;
 public class View extends Application implements ListObserver {
 
     private static final Logger log = Logger.getLogger(View.class.getName());
-    private Group root;
-    private Group objects;
-    private Group fieldVectors;
-    private Group grid;
-    private Group streamlines;
+    private Group root, objects, fieldVectors, grid, streamlines, select;
     private Camera camera;
 
     private EField eField;
+
+    private ChargedObject selected;
 
     public View() {
         if (!Platform.isSupported(ConditionalFeature.SCENE3D)) {
@@ -55,6 +58,7 @@ public class View extends Application implements ListObserver {
         fieldVectors = new Group();
         grid = new Group();
         streamlines = new Group();
+        select = new Group();
         camera = new PerspectiveCamera(true);
         eField = EField.getInstance();
     }
@@ -63,7 +67,7 @@ public class View extends Application implements ListObserver {
     public void start(Stage stage) throws IOException {
         SubScene view3d = new SubScene(root, 1200, 800, true, SceneAntialiasing.DISABLED);
 
-        root.getChildren().addAll(objects, fieldVectors, grid, streamlines);
+        root.getChildren().addAll(objects, fieldVectors, grid, streamlines, select);
 
         Group cameraPivot = new Group(camera);
         camera.setTranslateZ(-10);
@@ -109,6 +113,28 @@ public class View extends Application implements ListObserver {
         drawGrid();
         drawStreamlines();
         drawField();
+        eField.getObjects().forEach(System.out::println);
+    }
+
+    public void select(ChargedObject chargedObject) {
+        if (!eField.getObjects().contains(chargedObject))
+            return;
+        select.getChildren().clear();
+        selected = chargedObject;
+        Sphere marker = new Sphere(0.033);
+        marker.setDepthTest(DepthTest.DISABLE);
+        PhongMaterial mat = new PhongMaterial(Color.GOLD);
+        mat.setSelfIlluminationMap(new Image(
+            getClass().getResource("/textures/selfIllumYellow.png").toExternalForm()));
+        marker.setMaterial(mat);
+        marker.setTranslateX(chargedObject.getPositionX());
+        marker.setTranslateY(chargedObject.getPositionY());
+        marker.setTranslateZ(chargedObject.getPositionZ());
+        select.getChildren().add(marker);
+    }
+
+    public ChargedObject getSelected() {
+        return selected;
     }
 
     private void drawGrid() {

@@ -1,20 +1,29 @@
-package cc.androbohij.jelectro.fx;
+package cc.androbohij.jelectro.fx.controllers;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.control.Accordion;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
+import javafx.scene.layout.AnchorPane;
 
 import static cc.androbohij.jelectro.Settings.*;
 
-import java.util.List;
+import java.io.IOException;
 
+import cc.androbohij.jelectro.EField;
+import cc.androbohij.jelectro.fx.View;
 import cc.androbohij.jelectro.objects.ChargedObject;
 
 public class Sidebar {
 
     private View app;
+
+    @FXML
+    private AnchorPane apEditInset;
 
     @FXML
     private Button applySettings;
@@ -35,6 +44,12 @@ public class Sidebar {
     private CheckBox cbShowStreamlines;
 
     @FXML
+    private Button clearSim;
+
+    @FXML
+    private ComboBox<ChargedObject> combObjectSelect;
+
+    @FXML
     private Spinner<Integer> spSmlPasses;
 
     @FXML
@@ -44,7 +59,17 @@ public class Sidebar {
     private Spinner<Double> spSmlDist;
 
     @FXML 
-    public void initialize() {
+    private void initialize() {
+        setupSimulationPane();
+        
+        combObjectSelect.getItems().addAll(EField.getInstance().getObjects());
+    }
+
+    public void setApp(View app) {
+        this.app = app;
+    }
+
+    private void setupSimulationPane() {
         cbDrawArrowheads.setSelected(drawArrowHeads);
         cbShowField.setSelected(showField);
         cbShowGrid.setSelected(showGrid);
@@ -61,11 +86,16 @@ public class Sidebar {
         spSmlPasses.getValueFactory().setValue(streamlinePasses);
         spSmlPerObject.getValueFactory().setValue(streamlinesPerObject);
         spSmlDist.getValueFactory().setValue(streamlineStartDistance);
-        
     }
 
     @FXML
-    public void commitSettings(ActionEvent event) {
+    private void clearSim(ActionEvent event) {
+        EField.getInstance().clearObjects();
+    }
+
+
+    @FXML
+    private void commitSettings(ActionEvent event) {
         drawArrowHeads = cbDrawArrowheads.isSelected();
         showField = cbShowField.isSelected();
         showGrid = cbShowGrid.isSelected();
@@ -79,12 +109,15 @@ public class Sidebar {
         app.refresh();
     }
 
-    public void setApp(View app) {
-        this.app = app;
-    }
-
-    public void populateObjectList(List<ChargedObject> objects) {
-
+    @FXML
+    private void objectSelectUpdate(ActionEvent event) throws IOException {
+        app.select(combObjectSelect.getValue());
+        apEditInset.getChildren().clear();
+        FXMLLoader inset = new FXMLLoader(
+            getClass().getResource("/fxml/objEditInset.fxml"));
+        Accordion accordion = inset.load();
+        ((EditorInset)inset.getController()).loadObject(app.getSelected());
+        apEditInset.getChildren().add(accordion);
     }
 
 }

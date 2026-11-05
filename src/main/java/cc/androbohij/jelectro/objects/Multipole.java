@@ -8,12 +8,16 @@ import javafx.geometry.Point3D;
 public class Multipole extends ChargedObject {
 
     private List<PointCharge> charges;
+    private double chargePer;
+    private double distance;
 
     public Multipole(Point3D position, double q, double d, int poles, 
         double rx, double ry, double rz, boolean child) {
         super(position, 0, rx, ry, rz, child);
         charges = new ArrayList<>();
-        createMultipole(poles, q, d);
+        chargePer = q;
+        distance = d;
+        createMultipole(poles, chargePer, distance);
     }
 
     public Point3D getE(Point3D p) {
@@ -22,6 +26,13 @@ public class Multipole extends ChargedObject {
             SumEVec = SumEVec.add(chargedObject.getE(p));
         }
         return SumEVec;
+    }
+
+    @Override
+    public void setCharge(double charge) {
+        for (PointCharge pointCharge : charges) {
+            pointCharge.setCharge(charge);
+        }
     }
 
     public List<PointCharge> getCharges() {

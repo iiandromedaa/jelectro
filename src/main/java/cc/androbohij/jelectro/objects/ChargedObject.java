@@ -7,13 +7,15 @@ import javafx.scene.Node;
 public abstract class ChargedObject {
 
     private double charge;
-    private Handle handle;
+    private final Handle handle;
     private boolean child;
+    private Point3D velocity;
 
     // TODO: BUILDER PATTERN !!!!!!!!!!!!
     // TODO: although with the subclasses off this, might require CRTP
     public ChargedObject(Point3D position, double charge, 
         double rx, double ry, double rz, boolean child) {
+        velocity = Point3D.ZERO; 
         handle = new Handle();
         handle.translate(position);
         handle.rotate(rx, ry, rz);
@@ -47,6 +49,38 @@ public abstract class ChargedObject {
             return handle.getPosition();
     }
 
+    public double getPositionX() {
+        return getPosition().getX();
+    }
+
+    public double getPositionY() {
+        return getPosition().getY();
+    }
+
+    public double getPositionZ() {
+        return getPosition().getZ();
+    }
+
+    public Point3D getVelocity() {
+        return velocity;
+    }
+
+    public void setVelocity(Point3D velocity) {
+        this.velocity = velocity;
+    }
+
+    public double getRx() {
+        return handle.rx.getAngle();
+    }
+
+    public double getRy() {
+        return handle.ry.getAngle();
+    }
+
+    public double getRz() {
+        return handle.rz.getAngle();
+    }
+
     public Handle getHandle() {
         return handle;
     }
@@ -61,6 +95,16 @@ public abstract class ChargedObject {
 
     protected void addShape(Node node) {
         handle.getChildren().add(node);
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(getClass().getSimpleName());
+        Point3D pos = getPosition();
+        sb.append(" ");
+        sb.append(hashCode());
+        return sb.toString();
     }
 
 }
