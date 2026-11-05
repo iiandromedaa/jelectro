@@ -5,6 +5,7 @@ import static cc.androbohij.jelectro.Settings.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -40,12 +41,10 @@ import javafx.stage.StageStyle;
 public class View extends Application implements ListObserver {
 
     private static final Logger log = Logger.getLogger(View.class.getName());
-    private Group root, objects, fieldVectors, grid, streamlines, select;
+    private Group root, objects, fieldVectors, grid, streamlines, select, velocities;
     private Camera camera;
 
     private EField eField;
-
-    private ChargedObject selected;
 
     public View() {
         if (!Platform.isSupported(ConditionalFeature.SCENE3D)) {
@@ -53,12 +52,15 @@ public class View extends Application implements ListObserver {
             Platform.exit();
             return;
         }
+
         root = new Group();
         objects = new Group();
         fieldVectors = new Group();
         grid = new Group();
         streamlines = new Group();
         select = new Group();
+        velocities = new Group();
+
         camera = new PerspectiveCamera(true);
         eField = EField.getInstance();
     }
@@ -67,7 +69,7 @@ public class View extends Application implements ListObserver {
     public void start(Stage stage) throws IOException {
         SubScene view3d = new SubScene(root, 1200, 800, true, SceneAntialiasing.DISABLED);
 
-        root.getChildren().addAll(objects, fieldVectors, grid, streamlines, select);
+        root.getChildren().addAll(objects, fieldVectors, grid, streamlines, velocities, select);
 
         Group cameraPivot = new Group(camera);
         camera.setTranslateZ(-10);
@@ -113,14 +115,13 @@ public class View extends Application implements ListObserver {
         drawGrid();
         drawStreamlines();
         drawField();
-        eField.getObjects().forEach(System.out::println);
+        drawVelocities();
     }
 
     public void select(ChargedObject chargedObject) {
+        select.getChildren().clear();
         if (!eField.getObjects().contains(chargedObject))
             return;
-        select.getChildren().clear();
-        selected = chargedObject;
         Sphere marker = new Sphere(0.033);
         marker.setDepthTest(DepthTest.DISABLE);
         PhongMaterial mat = new PhongMaterial(Color.GOLD);
@@ -133,10 +134,6 @@ public class View extends Application implements ListObserver {
         select.getChildren().add(marker);
     }
 
-    public ChargedObject getSelected() {
-        return selected;
-    }
-
     private void drawGrid() {
         grid.getChildren().clear();
         if (!showGrid)
@@ -145,6 +142,19 @@ public class View extends Application implements ListObserver {
             LineDrawer.draw(new Point3D(-5, 0, 0), new Point3D(5, 0, 0), false),
             LineDrawer.draw(new Point3D(0, 0, -5), new Point3D(0, 0, 5), false)
         );
+    }
+
+    private void drawVelocities() {
+        velocities.getChildren().clear();
+        if (eField.isEmpty() || !showVelocities)
+            return;
+        List<Group> lines = eField.getObjects().stream()
+            .map(object ->
+                LineDrawer.draw(object.getPosition(), 
+                    object.getPosition().add(object.getVelocity()))
+            ).filter(Objects::nonNull)
+            .collect(Collectors.toList());
+        velocities.getChildren().addAll(lines);
     }
 
     private void drawField() {
@@ -184,21 +194,21 @@ public class View extends Application implements ListObserver {
                     streamlineStartDistance*Math.max(p, 1), 
                     streamlinesPerObject, 2*p
                 );
-                List<Group> lines = points.parallelStream()
-                    .distinct()
+                List<Group> lines = points.stream()
                     .map(point ->
                         LineDrawer.draw(eField.getStreamline(point, 
                             streamlineMaxSteps, streamlineStepSize, 
                             true))
-                    ).collect(Collectors.toList());
+                    ).filter(Objects::nonNull)
+                    .collect(Collectors.toList());
                 
-                lines.addAll(points.parallelStream()
-                    .distinct()
+                lines.addAll(points.stream()
                     .map(point ->
                         LineDrawer.draw(eField.getStreamline(point, 
                             streamlineMaxSteps, streamlineStepSize, 
                             false))
-                    ).collect(Collectors.toList())
+                    ).filter(Objects::nonNull)
+                    .collect(Collectors.toList())
                 );
                 Platform.runLater(() -> streamlines.getChildren().addAll(lines));
             }
@@ -228,22 +238,19 @@ public class View extends Application implements ListObserver {
     @Override
     public void listAdd(ChargedObject chargedObject) {
         objects.getChildren().add(chargedObject.getHandle());
-        drawField();
-        drawStreamlines();
+        refresh();
     }
 
     @Override
     public void listRemove(ChargedObject chargedObject) {
         objects.getChildren().remove(chargedObject.getHandle());
-        drawField();
-        drawStreamlines();
+        refresh();
     }
 
     @Override
     public void listClear() {
         objects.getChildren().clear();
-        drawField();
-        drawStreamlines();
+        refresh();
     }
 
     private static class InputHandler {
@@ -274,11 +281,11 @@ public class View extends Application implements ListObserver {
             mouseDownY = event.getSceneY();
         }
 
-        protected static Rotate getCamPitch() {
+        private static Rotate getCamPitch() {
             return camPitch;
         }
 
-        protected static Rotate getCamYaw() {
+        private static Rotate getCamYaw() {
             return camYaw;
         }
 

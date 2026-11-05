@@ -10,7 +10,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<Accordion maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="230.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/22" fx:controller="cc.androbohij.jelectro.fx.controllers.EditorInset">
+<Accordion maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="230.0" xmlns="http://javafx.com/javafx/25.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cc.androbohij.jelectro.fx.controllers.EditorInset">
   <panes>
     <TitledPane animated="false" text="Transform">
       <content>
@@ -21,47 +21,47 @@
                         <HBox alignment="CENTER_LEFT" prefWidth="200.0" spacing="10.0">
                            <children>
                               <Label text="X Pos." />
-                              <Spinner prefHeight="26.0" prefWidth="100.0" fx:id="xpos" />
+                              <Spinner editable="true" prefHeight="26.0" prefWidth="100.0" fx:id="xpos" />
                            </children>
                         </HBox>
                         <HBox alignment="CENTER_LEFT" layoutX="20.0" layoutY="20.0" prefWidth="200.0" spacing="10.0">
                            <children>
                               <Label text="Y Pos." />
-                              <Spinner fx:id="ypos" prefHeight="26.0" prefWidth="100.0" />
+                              <Spinner fx:id="ypos" editable="true" prefHeight="26.0" prefWidth="100.0" />
                            </children>
                         </HBox>
                         <HBox alignment="CENTER_LEFT" layoutX="20.0" layoutY="56.0" prefWidth="200.0" spacing="10.0">
                            <children>
                               <Label text="Z Pos." />
-                              <Spinner fx:id="zpos" prefHeight="26.0" prefWidth="100.0" />
+                              <Spinner fx:id="zpos" editable="true" prefHeight="26.0" prefWidth="100.0" />
                            </children>
                         </HBox>
                         <Separator prefWidth="200.0" />
                         <HBox alignment="CENTER_LEFT" layoutX="20.0" layoutY="20.0" prefWidth="200.0" spacing="10.0">
                            <children>
                               <Label text="X Rot." />
-                              <Spinner prefHeight="26.0" prefWidth="100.0" fx:id="xrot" />
+                              <Spinner editable="true" prefHeight="26.0" prefWidth="100.0" fx:id="xrot" />
                            </children>
                         </HBox>
                         <HBox alignment="CENTER_LEFT" layoutX="20.0" layoutY="56.0" prefWidth="200.0" spacing="10.0">
                            <children>
                               <Label text="Y Rot." />
-                              <Spinner fx:id="yrot" prefHeight="26.0" prefWidth="100.0" />
+                              <Spinner fx:id="yrot" editable="true" prefHeight="26.0" prefWidth="100.0" />
                            </children>
                         </HBox>
                         <HBox alignment="CENTER_LEFT" layoutX="20.0" layoutY="92.0" prefWidth="200.0" spacing="10.0">
                            <children>
                               <Label text="Z Rot." />
-                              <Spinner fx:id="zrot" prefHeight="26.0" prefWidth="100.0" />
+                              <Spinner fx:id="zrot" editable="true" prefHeight="26.0" prefWidth="100.0" />
                            </children>
                         </HBox>
                         <Separator prefWidth="200.0" />
                         <Label text="Velocity (XYZ)" />
                         <HBox prefWidth="230.0" spacing="10.0">
                            <children>
-                              <Spinner fx:id="vx" />
-                              <Spinner fx:id="vy" />
-                              <Spinner fx:id="vz" />
+                              <Spinner fx:id="vx" editable="true" />
+                              <Spinner fx:id="vy" editable="true" />
+                              <Spinner fx:id="vz" editable="true" />
                            </children>
                         </HBox>
                      </children>

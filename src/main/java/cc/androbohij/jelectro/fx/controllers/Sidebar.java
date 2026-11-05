@@ -34,6 +34,9 @@ public class Sidebar {
     @FXML
     private CheckBox cbDrawArrowheads;
 
+    @FXML 
+    private CheckBox cbDrawVelocities;
+
     @FXML
     private CheckBox cbShowField;
 
@@ -62,6 +65,7 @@ public class Sidebar {
     private void initialize() {
         setupSimulationPane();
         
+        combObjectSelect.getItems().add(null);
         combObjectSelect.getItems().addAll(EField.getInstance().getObjects());
     }
 
@@ -71,6 +75,7 @@ public class Sidebar {
 
     private void setupSimulationPane() {
         cbDrawArrowheads.setSelected(drawArrowHeads);
+        cbDrawVelocities.setSelected(showVelocities);
         cbShowField.setSelected(showField);
         cbShowGrid.setSelected(showGrid);
         cbShowStreamlines.setSelected(showStreamlines);
@@ -101,6 +106,7 @@ public class Sidebar {
         showGrid = cbShowGrid.isSelected();
         showStreamlines = cbShowStreamlines.isSelected();
         field2DOnly = !cb3dField.isSelected();
+        showVelocities = cbDrawVelocities.isSelected();
 
         streamlinePasses = spSmlPasses.getValue();
         streamlinesPerObject = spSmlPerObject.getValue();
@@ -113,10 +119,12 @@ public class Sidebar {
     private void objectSelectUpdate(ActionEvent event) throws IOException {
         app.select(combObjectSelect.getValue());
         apEditInset.getChildren().clear();
+        if (combObjectSelect.getValue() == null)
+            return;
         FXMLLoader inset = new FXMLLoader(
             getClass().getResource("/fxml/objEditInset.fxml"));
         Accordion accordion = inset.load();
-        ((EditorInset)inset.getController()).loadObject(app.getSelected());
+        ((EditorInset)inset.getController()).loadObject(combObjectSelect.getValue(), app);
         apEditInset.getChildren().add(accordion);
     }
 

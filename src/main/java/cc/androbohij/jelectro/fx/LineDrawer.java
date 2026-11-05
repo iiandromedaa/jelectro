@@ -18,6 +18,18 @@ import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Translate;
 
 public class LineDrawer {
+
+    private static final Image SELF_ILLUM = new Image(
+        LineDrawer.class.getClassLoader()
+            .getResource("textures/selfIllum.png").toExternalForm()
+    );
+
+    private static final PhongMaterial LINE_MATERIAL;
+
+    static {
+        LINE_MATERIAL = new PhongMaterial(Color.WHITE);
+        LINE_MATERIAL.setSelfIlluminationMap(SELF_ILLUM);
+    }
     
     public static Group draw(Point3D p1, Point3D p2, boolean vector) {
         Point3D directionVec = p2.subtract(p1);
@@ -30,17 +42,12 @@ public class LineDrawer {
         Point3D mid = p1.add(scaledVec.multiply(0.5));
 
         if (length == 0 || scaledLength < cullFieldVecs)
-            return new Group();
-
-        PhongMaterial mat = new PhongMaterial(Color.WHITE);
-        mat.setSelfIlluminationMap(new Image(
-            LineDrawer.class.getClassLoader()
-            .getResource("textures/selfIllum.png").toExternalForm()));
+            return null;
 
         // its secretly just really thin quads
         Line3D strip = new Line3D(0.0001f, (float)scaledLength, drawArrowHeads);
         strip.setCullFace(CullFace.NONE);
-        strip.setMaterial(mat);
+        strip.setMaterial(LINE_MATERIAL);
         // plus wireframe mode so its always the same width onscreen
         strip.setDrawMode(DrawMode.LINE);
 

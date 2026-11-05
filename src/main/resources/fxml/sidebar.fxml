@@ -13,7 +13,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" mouseTransparent="false" prefHeight="800.0" prefWidth="1200.0" style="-fx-background-color: transparent;" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cc.androbohij.jelectro.fx.controllers.Sidebar">
+<AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" mouseTransparent="false" prefHeight="800.0" prefWidth="1200.0" style="-fx-background-color: transparent;" xmlns="http://javafx.com/javafx/25.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cc.androbohij.jelectro.fx.controllers.Sidebar">
    <children>
       <Accordion minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="250.0" translateZ="-100.0" AnchorPane.rightAnchor="0.0">
         <panes>
@@ -57,6 +57,7 @@
                               <CheckBox fx:id="cbShowStreamlines" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" text="Show Streamlines" />
                               <CheckBox fx:id="cbShowField" layoutX="20.0" layoutY="76.0" mnemonicParsing="false" text="Show Field" />
                               <CheckBox fx:id="cbDrawArrowheads" layoutX="20.0" layoutY="48.0" mnemonicParsing="false" text="Draw Arrowheads" />
+                              <CheckBox fx:id="cbDrawVelocities" layoutX="20.0" layoutY="104.0" mnemonicParsing="false" text="Draw Object Velocities" />
                               <CheckBox fx:id="cb3dField" layoutX="20.0" layoutY="104.0" mnemonicParsing="false" text="3D Field (SLOW)" />
                               <Separator prefWidth="200.0" />
                               <Label layoutX="20.0" layoutY="173.0" text="Streamlines Per Object" />

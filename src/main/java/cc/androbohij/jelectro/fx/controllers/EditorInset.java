@@ -1,6 +1,8 @@
 package cc.androbohij.jelectro.fx.controllers;
 
+import cc.androbohij.jelectro.fx.View;
 import cc.androbohij.jelectro.objects.ChargedObject;
+import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.geometry.Point3D;
@@ -9,7 +11,7 @@ import javafx.scene.control.SpinnerValueFactory;
 
 public class EditorInset {
 
-    private ChargedObject selected;
+    private View app;
 
     @FXML
     private Spinner<Double> vx;
@@ -41,18 +43,18 @@ public class EditorInset {
     @FXML 
     private void initialize() {
         vx.setValueFactory(
-            new SpinnerValueFactory.DoubleSpinnerValueFactory(-5, 5));
+            new SpinnerValueFactory.DoubleSpinnerValueFactory(-100, 100));
         vy.setValueFactory(
-            new SpinnerValueFactory.DoubleSpinnerValueFactory(-5, 5));
+            new SpinnerValueFactory.DoubleSpinnerValueFactory(-100, 100));
         vz.setValueFactory(
-            new SpinnerValueFactory.DoubleSpinnerValueFactory(-5, 5));
+            new SpinnerValueFactory.DoubleSpinnerValueFactory(-100, 100));
 
         xpos.setValueFactory(
-            new SpinnerValueFactory.DoubleSpinnerValueFactory(-5, 5));
+            new SpinnerValueFactory.DoubleSpinnerValueFactory(-5, 5, 0, 0.25));
         ypos.setValueFactory(
-            new SpinnerValueFactory.DoubleSpinnerValueFactory(-5, 5));
+            new SpinnerValueFactory.DoubleSpinnerValueFactory(-5, 5, 0, 0.25));
         zpos.setValueFactory(
-            new SpinnerValueFactory.DoubleSpinnerValueFactory(-5, 5));
+            new SpinnerValueFactory.DoubleSpinnerValueFactory(-5, 5, 0, 0.25));
         
         xrot.setValueFactory(
             new SpinnerValueFactory.DoubleSpinnerValueFactory(-180, 180));
@@ -60,39 +62,11 @@ public class EditorInset {
             new SpinnerValueFactory.DoubleSpinnerValueFactory(-180, 180));
         zrot.setValueFactory(
             new SpinnerValueFactory.DoubleSpinnerValueFactory(-180, 180));
-
-        vx.valueProperty().addListener((obs, oldValue, newValue) -> {
-            
-        });
-        vy.valueProperty().addListener((obs, oldValue, newValue) -> {
-            
-        });
-        vz.valueProperty().addListener((obs, oldValue, newValue) -> {
-            
-        });
-
-        xpos.valueProperty().addListener((obs, oldValue, newValue) -> {
-            
-        });
-        ypos.valueProperty().addListener((obs, oldValue, newValue) -> {
-            
-        });
-        zpos.valueProperty().addListener((obs, oldValue, newValue) -> {
-            
-        });
-
-        xrot.valueProperty().addListener((obs, oldValue, newValue) -> {
-            
-        });
-        yrot.valueProperty().addListener((obs, oldValue, newValue) -> {
-            
-        });
-        zrot.valueProperty().addListener((obs, oldValue, newValue) -> {
-            
-        });
     }
 
-    public void loadObject(ChargedObject chargedObject) {
+    public void loadObject(ChargedObject chargedObject, View app) {
+        this.app = app;
+
         vx.getValueFactory().setValue(chargedObject.getVelocity().getX());
         vy.getValueFactory().setValue(chargedObject.getVelocity().getY());
         vz.getValueFactory().setValue(chargedObject.getVelocity().getZ());
@@ -105,7 +79,47 @@ public class EditorInset {
         yrot.getValueFactory().setValue(chargedObject.getRy());
         zrot.getValueFactory().setValue(chargedObject.getRz());
 
-        selected = chargedObject;
+        ChangeListener<Double> vListener = (obs, oldValue, newValue) -> {
+            vChanged(obs, 0, 0, chargedObject);
+        };
+
+        ChangeListener<Double> posListener = (obs, oldValue, newValue) -> {
+            posChanged(obs, oldValue, newValue, chargedObject);
+        };
+
+        ChangeListener<Double> rotListener = (obs, oldValue, newValue) -> {
+            rotChanged(obs, 0, 0, chargedObject);
+        };
+
+        vx.valueProperty().addListener(vListener);
+        vy.valueProperty().addListener(vListener);
+        vz.valueProperty().addListener(vListener);
+
+        xpos.valueProperty().addListener(posListener);
+        ypos.valueProperty().addListener(posListener);
+        zpos.valueProperty().addListener(posListener);
+
+        xrot.valueProperty().addListener(rotListener);
+        yrot.valueProperty().addListener(rotListener);
+        zrot.valueProperty().addListener(rotListener);
+    }
+
+    private void vChanged(ObservableValue<? extends Double> obs, 
+        double oldValue, double newValue, ChargedObject chargedObject) {
+        chargedObject.setVelocity(new Point3D(vx.getValue(), vy.getValue(), vz.getValue()));
+        app.refresh();
+    }
+
+    private void posChanged(ObservableValue<? extends Double> obs, 
+        double oldValue, double newValue, ChargedObject chargedObject) {
+        chargedObject.setPosition(new Point3D(xpos.getValue(), ypos.getValue(), zpos.getValue()));
+        app.refresh();
+    }
+
+    private void rotChanged(ObservableValue<? extends Double> obs, 
+        double oldValue, double newValue, ChargedObject chargedObject) {
+        chargedObject.getHandle().rotate(xrot.getValue(), yrot.getValue(), zrot.getValue());
+        app.refresh();
     }
 
 }

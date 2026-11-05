@@ -55,4 +55,8 @@ public abstract class Settings {
 
     public static int streamlinePasses = 1;
 
+    public static boolean showVelocities = true;
+    
+    public static boolean drawB = false;
+
 }
