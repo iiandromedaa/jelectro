@@ -15,6 +15,10 @@ import cc.androbohij.jelectro.fx.controllers.Sidebar;
 import cc.androbohij.jelectro.objects.ChargedObject;
 import cc.androbohij.jelectro.objects.Multipole;
 import cc.androbohij.jelectro.objects.PointCharge;
+import javafx.animation.Interpolator;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.application.ConditionalFeature;
 import javafx.application.Platform;
@@ -27,7 +31,6 @@ import javafx.scene.PerspectiveCamera;
 import javafx.scene.Scene;
 import javafx.scene.SceneAntialiasing;
 import javafx.scene.SubScene;
-import javafx.scene.image.Image;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
@@ -37,6 +40,7 @@ import javafx.scene.shape.Sphere;
 import javafx.scene.transform.Rotate;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import javafx.util.Duration;
 
 public class View extends Application implements ListObserver {
 
@@ -84,9 +88,8 @@ public class View extends Application implements ListObserver {
 
         eField.subscribe(this);
 
-        // TODO: object creation UI, making objects in scene init can cause races
         eField.createObject(new PointCharge(new Point3D(0, 0, 0), 1e-10));
-        eField.createObject(new Multipole(new Point3D(-0.5, 0, 1), 5e-9, 0.01, 2, 0, 15, 45, false));
+        eField.createObject(new Multipole(new Point3D(-0.5, 0, 1), 5e-9, 0.01, 4, 0, 15, 45, false));
 
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/sidebar.fxml"));
         AnchorPane UI = loader.load();
@@ -122,16 +125,21 @@ public class View extends Application implements ListObserver {
         select.getChildren().clear();
         if (!eField.getObjects().contains(chargedObject))
             return;
-        Sphere marker = new Sphere(0.033);
+        Sphere marker = new Sphere(0.1);
+        PhongMaterial mat = new PhongMaterial();
+        LineDrawer.setUpMaterial(mat, Color.GOLD);
         marker.setDepthTest(DepthTest.DISABLE);
-        PhongMaterial mat = new PhongMaterial(Color.GOLD);
-        mat.setSelfIlluminationMap(new Image(
-            getClass().getResource("/textures/selfIllumYellow.png").toExternalForm()));
         marker.setMaterial(mat);
         marker.setTranslateX(chargedObject.getPositionX());
         marker.setTranslateY(chargedObject.getPositionY());
         marker.setTranslateZ(chargedObject.getPositionZ());
+        Timeline timeline = new Timeline(
+            new KeyFrame(Duration.seconds(0.5), 
+                new KeyValue(mat.diffuseColorProperty(), 
+                    Color.TRANSPARENT, Interpolator.EASE_OUT))
+        );
         select.getChildren().add(marker);
+        timeline.play();
     }
 
     private void drawGrid() {
@@ -139,8 +147,8 @@ public class View extends Application implements ListObserver {
         if (!showGrid)
             return;
         grid.getChildren().addAll(
-            LineDrawer.draw(new Point3D(-5, 0, 0), new Point3D(5, 0, 0), false),
-            LineDrawer.draw(new Point3D(0, 0, -5), new Point3D(0, 0, 5), false)
+            LineDrawer.draw(new Point3D(-5, 0, 0), new Point3D(5, 0, 0)),
+            LineDrawer.draw(new Point3D(0, 0, -5), new Point3D(0, 0, 5))
         );
     }
 
@@ -151,7 +159,8 @@ public class View extends Application implements ListObserver {
         List<Group> lines = eField.getObjects().stream()
             .map(object ->
                 LineDrawer.draw(object.getPosition(), 
-                    object.getPosition().add(object.getVelocity()))
+                    object.getPosition().add(object.getVelocity()),
+                    LineDrawer.BLUE)
             ).filter(Objects::nonNull)
             .collect(Collectors.toList());
         velocities.getChildren().addAll(lines);
@@ -173,9 +182,10 @@ public class View extends Application implements ListObserver {
                     Group line = LineDrawer.draw(
                         currentP,
                         eField.getEAtPoint(currentP).add(currentP),
-                        true
+                        true,
+                        LineDrawer.WHITE
                     );
-                    if (!line.getChildren().isEmpty())
+                    if (line != null)
                         fieldVectors.getChildren().add(line);
                 }
             }
@@ -198,7 +208,7 @@ public class View extends Application implements ListObserver {
                     .map(point ->
                         LineDrawer.draw(eField.getStreamline(point, 
                             streamlineMaxSteps, streamlineStepSize, 
-                            true))
+                            true), LineDrawer.WHITE)
                     ).filter(Objects::nonNull)
                     .collect(Collectors.toList());
                 
@@ -206,7 +216,7 @@ public class View extends Application implements ListObserver {
                     .map(point ->
                         LineDrawer.draw(eField.getStreamline(point, 
                             streamlineMaxSteps, streamlineStepSize, 
-                            false))
+                            false), LineDrawer.WHITE)
                     ).filter(Objects::nonNull)
                     .collect(Collectors.toList())
                 );

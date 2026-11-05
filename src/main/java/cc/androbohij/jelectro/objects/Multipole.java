@@ -9,15 +9,13 @@ public class Multipole extends ChargedObject {
 
     private List<PointCharge> charges;
     private double chargePer;
-    private double distance;
 
-    public Multipole(Point3D position, double q, double d, int poles, 
+    public Multipole(Point3D position, double q, double s, int poles, 
         double rx, double ry, double rz, boolean child) {
-        super(position, 0, rx, ry, rz, child);
+        super(position, q, rx, ry, rz, child);
         charges = new ArrayList<>();
         chargePer = q;
-        distance = d;
-        createMultipole(poles, chargePer, distance);
+        createMultipole(poles, chargePer, s);
     }
 
     public Point3D getE(Point3D p) {
@@ -29,9 +27,9 @@ public class Multipole extends ChargedObject {
     }
 
     @Override
-    public void setCharge(double charge) {
-        for (PointCharge pointCharge : charges) {
-            pointCharge.setCharge(charge);
+    public void setCharge(double q) {
+        for (int i = 0; i < charges.size(); i++) {
+            charges.get(i).setCharge((i % 2 == 0) ? q : -q);
         }
     }
 
@@ -54,12 +52,12 @@ public class Multipole extends ChargedObject {
         }
     }
 
-    private double xAboutD(int poles, int i, double d) {
-       return ((d/2)*Math.cos((2*Math.PI*i)/(double)poles)); 
+    private double xAboutD(int poles, int i, double s) {
+       return ((s/2)*Math.cos((2*Math.PI*i)/(double)poles)); 
     }
 
-    private double zAboutD(int poles, int i, double d) {
-        return ((d/2)*Math.sin((2*Math.PI*i)/(double)poles));
+    private double zAboutD(int poles, int i, double s) {
+        return ((s/2)*Math.sin((2*Math.PI*i)/(double)poles));
     }
     
 }

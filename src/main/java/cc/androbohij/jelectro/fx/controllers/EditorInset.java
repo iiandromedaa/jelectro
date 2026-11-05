@@ -14,6 +14,9 @@ public class EditorInset {
     private View app;
 
     @FXML
+    private Spinner<Double> charge;
+
+    @FXML
     private Spinner<Double> vx;
 
     @FXML
@@ -42,12 +45,15 @@ public class EditorInset {
 
     @FXML 
     private void initialize() {
+        charge.setValueFactory(
+            new SpinnerValueFactory.DoubleSpinnerValueFactory(-100, 100, 0, 0.1));
+
         vx.setValueFactory(
-            new SpinnerValueFactory.DoubleSpinnerValueFactory(-100, 100));
+            new SpinnerValueFactory.DoubleSpinnerValueFactory(-10, 10, 0, 0.25));
         vy.setValueFactory(
-            new SpinnerValueFactory.DoubleSpinnerValueFactory(-100, 100));
+            new SpinnerValueFactory.DoubleSpinnerValueFactory(-10, 10, 0, 0.25));
         vz.setValueFactory(
-            new SpinnerValueFactory.DoubleSpinnerValueFactory(-100, 100));
+            new SpinnerValueFactory.DoubleSpinnerValueFactory(-10, 10, 0, 0.25));
 
         xpos.setValueFactory(
             new SpinnerValueFactory.DoubleSpinnerValueFactory(-5, 5, 0, 0.25));
@@ -66,6 +72,8 @@ public class EditorInset {
 
     public void loadObject(ChargedObject chargedObject, View app) {
         this.app = app;
+
+        charge.getValueFactory().setValue(chargedObject.getCharge()/1e-9);
 
         vx.getValueFactory().setValue(chargedObject.getVelocity().getX());
         vy.getValueFactory().setValue(chargedObject.getVelocity().getY());
@@ -102,6 +110,11 @@ public class EditorInset {
         xrot.valueProperty().addListener(rotListener);
         yrot.valueProperty().addListener(rotListener);
         zrot.valueProperty().addListener(rotListener);
+
+        charge.valueProperty().addListener((obs, newValue, oldValue) -> {
+            chargedObject.setCharge(charge.getValue()*1e-9);
+            app.refresh();
+        });
     }
 
     private void vChanged(ObservableValue<? extends Double> obs, 

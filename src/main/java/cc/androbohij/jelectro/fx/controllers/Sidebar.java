@@ -2,7 +2,6 @@ package cc.androbohij.jelectro.fx.controllers;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.control.Accordion;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
@@ -15,18 +14,22 @@ import static cc.androbohij.jelectro.Settings.*;
 import java.io.IOException;
 
 import cc.androbohij.jelectro.EField;
+import cc.androbohij.jelectro.ListObserver;
 import cc.androbohij.jelectro.fx.View;
 import cc.androbohij.jelectro.objects.ChargedObject;
 
-public class Sidebar {
+public class Sidebar implements ListObserver {
 
     private View app;
 
     @FXML
-    private AnchorPane apEditInset;
+    private AnchorPane apCreateInset1;
 
     @FXML
-    private Button applySettings;
+    private AnchorPane apCreateInset2;
+
+    @FXML
+    private AnchorPane apEditInset;
 
     @FXML
     private CheckBox cb3dField;
@@ -50,6 +53,9 @@ public class Sidebar {
     private Button clearSim;
 
     @FXML
+    private ComboBox<? extends ChargedObject> combObjectCreateType;
+
+    @FXML
     private ComboBox<ChargedObject> combObjectSelect;
 
     @FXML
@@ -64,9 +70,8 @@ public class Sidebar {
     @FXML 
     private void initialize() {
         setupSimulationPane();
-        
-        combObjectSelect.getItems().add(null);
-        combObjectSelect.getItems().addAll(EField.getInstance().getObjects());
+        EField.getInstance().subscribe(this);
+        populateComboBox();
     }
 
     public void setApp(View app) {
@@ -123,9 +128,57 @@ public class Sidebar {
             return;
         FXMLLoader inset = new FXMLLoader(
             getClass().getResource("/fxml/objEditInset.fxml"));
-        Accordion accordion = inset.load();
+        inset.setController(new EditorInset());
+        AnchorPane anchorPane = inset.load();
         ((EditorInset)inset.getController()).loadObject(combObjectSelect.getValue(), app);
-        apEditInset.getChildren().add(accordion);
+        apEditInset.getChildren().add(anchorPane);
+    }
+
+    @FXML
+    void objectCreateUpdate(ActionEvent event) throws IOException {
+        // TODO: load the edit inset with separate controller for linking to object creation
+        // TODO: load a second inset with object specifics like s or A or lambda
+    }
+
+    @FXML
+    void createObject(ActionEvent event) {
+
+    }
+
+    @FXML
+    private void deleteObject(ActionEvent event) {
+        app.select(null);
+        EField.getInstance().removeObject(combObjectSelect.getValue());
+    }
+
+    private void populateComboBox() {
+        combObjectSelect.getItems().clear();
+        combObjectSelect.getItems().add(null);
+        combObjectSelect.getItems().addAll(EField.getInstance().getObjects());
+    }
+
+    @Override
+    public void listAdd(ChargedObject chargedObject) {
+        populateComboBox();
+    }
+
+    @Override
+    public void listRemove(ChargedObject chargedObject) {
+        if (combObjectSelect.getValue() == chargedObject) {
+            combObjectSelect.setValue(null);
+            try {
+                objectSelectUpdate(new ActionEvent(combObjectSelect, combObjectSelect));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        populateComboBox();
+    }
+
+    @Override
+    public void listClear() {
+        combObjectSelect.setValue(null);
+        populateComboBox();
     }
 
 }

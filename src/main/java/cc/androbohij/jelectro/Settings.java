@@ -26,7 +26,7 @@ public abstract class Settings {
 
     public static boolean showField = false;
 
-    public static boolean showStreamlines = false;
+    public static boolean showStreamlines = true;
 
     public static boolean field2DOnly = true;
 
@@ -58,5 +58,7 @@ public abstract class Settings {
     public static boolean showVelocities = true;
     
     public static boolean drawB = false;
+
+    public static boolean drawE = true;
 
 }

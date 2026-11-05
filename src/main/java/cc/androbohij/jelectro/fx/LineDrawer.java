@@ -10,6 +10,7 @@ import static cc.androbohij.jelectro.Settings.drawArrowHeads;
 import javafx.geometry.Point3D;
 import javafx.scene.Group;
 import javafx.scene.image.Image;
+import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.CullFace;
@@ -19,19 +20,19 @@ import javafx.scene.transform.Translate;
 
 public class LineDrawer {
 
-    private static final Image SELF_ILLUM = new Image(
-        LineDrawer.class.getClassLoader()
-            .getResource("textures/selfIllum.png").toExternalForm()
-    );
-
-    private static final PhongMaterial LINE_MATERIAL;
+    public static final PhongMaterial WHITE, BLUE, ORANGE;
 
     static {
-        LINE_MATERIAL = new PhongMaterial(Color.WHITE);
-        LINE_MATERIAL.setSelfIlluminationMap(SELF_ILLUM);
+        WHITE = new PhongMaterial();
+        BLUE = new PhongMaterial();
+        ORANGE = new PhongMaterial();
+
+        setUpMaterial(WHITE, Color.WHITE);
+        setUpMaterial(BLUE, Color.DEEPSKYBLUE);
+        setUpMaterial(ORANGE, Color.ORANGE);
     }
     
-    public static Group draw(Point3D p1, Point3D p2, boolean vector) {
+    public static Group draw(Point3D p1, Point3D p2, boolean vector, PhongMaterial mat) {
         Point3D directionVec = p2.subtract(p1);
         double length = directionVec.magnitude();
 
@@ -47,7 +48,7 @@ public class LineDrawer {
         // its secretly just really thin quads
         Line3D strip = new Line3D(0.0001f, (float)scaledLength, drawArrowHeads);
         strip.setCullFace(CullFace.NONE);
-        strip.setMaterial(LINE_MATERIAL);
+        strip.setMaterial(mat);
         // plus wireframe mode so its always the same width onscreen
         strip.setDrawMode(DrawMode.LINE);
 
@@ -63,15 +64,31 @@ public class LineDrawer {
     }
 
     public static Group draw(Point3D p1, Point3D p2) {
-        return draw(p1, p2, false);
+        return draw(p1, p2, false, WHITE);
     }
 
-    public static Group draw(List<Point3D> path) {
+    public static Group draw(Point3D p1, Point3D p2, PhongMaterial mat) {
+        return draw(p1, p2, false, mat);
+    }
+
+    public static Group draw(List<Point3D> path, PhongMaterial mat) {
         Group lines = new Group();
         for (int i = 0; i < path.size()-1; i++) {
-            lines.getChildren().add(draw(path.get(i), path.get(i+1), false));
+            lines.getChildren().add(draw(path.get(i), path.get(i+1), false, mat));
         }
         return lines;
+    }
+
+    private static Image makeSelfIllumMap(Color color) {
+        WritableImage image = new WritableImage(1,1);
+        image.getPixelWriter().setColor(0, 0, color);
+        return image;
+    }
+
+    public static void setUpMaterial(PhongMaterial mat, Color color) {
+        mat.setDiffuseColor(color);
+        mat.setSpecularColor(color);
+        mat.setSelfIlluminationMap(makeSelfIllumMap(color));
     }
 
 }

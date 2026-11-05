@@ -32,7 +32,8 @@ public class EField {
     }
 
     public void removeObject(ChargedObject chargedObject) {
-        objects.remove(chargedObject);
+        if (!objects.remove(chargedObject))
+            return;
         for (ListObserver observer : observers) {
             observer.listRemove(chargedObject);
         }

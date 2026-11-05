@@ -8,7 +8,7 @@ public abstract class ChargedObject {
 
     private double charge;
     private final Handle handle;
-    private boolean child;
+    private final boolean child;
     private Point3D velocity;
 
     // TODO: BUILDER PATTERN !!!!!!!!!!!!
@@ -85,8 +85,8 @@ public abstract class ChargedObject {
         return handle;
     }
 
-    public void setCharge(double charge) {
-        this.charge = charge;
+    public void setCharge(double q) {
+        this.charge = q;
     }
 
     public void setPosition(Point3D position) {
@@ -101,7 +101,6 @@ public abstract class ChargedObject {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append(getClass().getSimpleName());
-        Point3D pos = getPosition();
         sb.append(" ");
         sb.append(hashCode());
         return sb.toString();

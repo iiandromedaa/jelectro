@@ -15,29 +15,36 @@
 
 <AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" mouseTransparent="false" prefHeight="800.0" prefWidth="1200.0" style="-fx-background-color: transparent;" xmlns="http://javafx.com/javafx/25.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cc.androbohij.jelectro.fx.controllers.Sidebar">
    <children>
-      <Accordion minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="250.0" translateZ="-100.0" AnchorPane.rightAnchor="0.0">
+      <Accordion minHeight="-Infinity" minWidth="-Infinity" prefWidth="275.0" translateZ="-100.0" AnchorPane.rightAnchor="0.0">
         <panes>
           <TitledPane animated="false" text="Create Object">
             <content>
-              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+              <AnchorPane minHeight="0.0" minWidth="0.0" prefWidth="200.0">
                      <children>
-                        <VBox prefWidth="250.0" spacing="10.0">
+                        <VBox prefWidth="250.0" spacing="10.0" AnchorPane.bottomAnchor="-5.0" AnchorPane.topAnchor="-5.0">
                            <padding>
                               <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                            </padding>
+                           <children>
+                              <Label text="Object Type" />
+                              <ComboBox fx:id="combObjectCreateType" onAction="#objectCreateUpdate" prefHeight="26.0" prefWidth="250.0" promptText="Select" />
+                              <AnchorPane fx:id="apCreateInset1" minHeight="-Infinity" minWidth="-Infinity" prefHeight="420.0" prefWidth="230.0" />
+                              <Button mnemonicParsing="false" onAction="#createObject" text="Create Object" />
+                           </children>
                         </VBox>
                      </children></AnchorPane>
             </content>
           </TitledPane>
           <TitledPane animated="false" text="Edit Selected Object">
             <content>
-              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+              <AnchorPane minHeight="0.0" minWidth="0.0" prefWidth="200.0">
                      <children>
-                        <VBox prefWidth="250.0" spacing="10.0">
+                        <VBox prefWidth="250.0" spacing="10.0" AnchorPane.bottomAnchor="-5.0" AnchorPane.topAnchor="-5.0">
                            <children>
                               <Label text="Selected Object" />
                               <ComboBox fx:id="combObjectSelect" onAction="#objectSelectUpdate" prefHeight="26.0" prefWidth="250.0" promptText="None" />
-                              <AnchorPane fx:id="apEditInset" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="230.0" />
+                              <AnchorPane fx:id="apEditInset" minHeight="-Infinity" minWidth="-Infinity" prefHeight="420.0" prefWidth="230.0" />
+                              <Button mnemonicParsing="false" onAction="#deleteObject" text="Delete Object" />
                            </children>
                            <padding>
                               <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
@@ -49,10 +56,13 @@
           </TitledPane>
           <TitledPane animated="false" text="Simulation Settings">
             <content>
-              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+              <AnchorPane minHeight="0.0" minWidth="0.0" prefWidth="200.0">
                      <children>
-                        <VBox prefWidth="250.0" spacing="10.0">
+                        <VBox prefWidth="250.0" spacing="10.0" AnchorPane.bottomAnchor="-5.0" AnchorPane.topAnchor="-5.0">
                            <children>
+                              <CheckBox fx:id="cbShowE" layoutX="20.0" layoutY="33.0" mnemonicParsing="false" text="Show Electric Field (E)" />
+                              <CheckBox fx:id="cbShowB" layoutX="20.0" layoutY="20.0" mnemonicParsing="false" text="Show Magnetic Field (B)" />
+                              <Separator layoutX="20.0" layoutY="188.0" prefWidth="200.0" />
                               <CheckBox fx:id="cbShowGrid" mnemonicParsing="false" text="Show Grid" />
                               <CheckBox fx:id="cbShowStreamlines" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" text="Show Streamlines" />
                               <CheckBox fx:id="cbShowField" layoutX="20.0" layoutY="76.0" mnemonicParsing="false" text="Show Field" />
