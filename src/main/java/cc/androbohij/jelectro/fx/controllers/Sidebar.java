@@ -2,6 +2,7 @@ package cc.androbohij.jelectro.fx.controllers;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Point3D;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
@@ -12,15 +13,20 @@ import javafx.scene.layout.AnchorPane;
 import static cc.androbohij.jelectro.Settings.*;
 
 import java.io.IOException;
-
 import cc.androbohij.jelectro.EField;
 import cc.androbohij.jelectro.ListObserver;
 import cc.androbohij.jelectro.fx.View;
 import cc.androbohij.jelectro.objects.ChargedObject;
+import cc.androbohij.jelectro.objects.LineCharge;
+import cc.androbohij.jelectro.objects.Multipole;
+import cc.androbohij.jelectro.objects.PlaneCharge;
+import cc.androbohij.jelectro.objects.PointCharge;
 
 public class Sidebar implements ListObserver {
 
     private View app;
+    private CreatorInset ci;
+    // private AdditionalCreatorInset aci;
 
     @FXML
     private AnchorPane apCreateInset1;
@@ -41,6 +47,12 @@ public class Sidebar implements ListObserver {
     private CheckBox cbDrawVelocities;
 
     @FXML
+    private CheckBox cbShowB;
+
+    @FXML
+    private CheckBox cbShowE;
+
+    @FXML
     private CheckBox cbShowField;
 
     @FXML
@@ -53,7 +65,7 @@ public class Sidebar implements ListObserver {
     private Button clearSim;
 
     @FXML
-    private ComboBox<? extends ChargedObject> combObjectCreateType;
+    private ComboBox<String> combObjectCreateType;
 
     @FXML
     private ComboBox<ChargedObject> combObjectSelect;
@@ -67,20 +79,28 @@ public class Sidebar implements ListObserver {
     @FXML
     private Spinner<Double> spSmlDist;
 
-    @FXML 
+    @FXML
     private void initialize() {
         setupSimulationPane();
         EField.getInstance().subscribe(this);
         populateComboBox();
+        combObjectCreateType.getItems()
+            .addAll(
+                "Select", "Point Charge", "Multipole", 
+                "Line of Charge", "Plane of Charge"
+        );
     }
 
     public void setApp(View app) {
         this.app = app;
+        app.refresh();
     }
 
     private void setupSimulationPane() {
         cbDrawArrowheads.setSelected(drawArrowHeads);
         cbDrawVelocities.setSelected(showVelocities);
+        cbShowB.setSelected(drawB);
+        cbShowE.setSelected(drawE);
         cbShowField.setSelected(showField);
         cbShowGrid.setSelected(showGrid);
         cbShowStreamlines.setSelected(showStreamlines);
@@ -107,6 +127,8 @@ public class Sidebar implements ListObserver {
     @FXML
     private void commitSettings(ActionEvent event) {
         drawArrowHeads = cbDrawArrowheads.isSelected();
+        drawE = cbShowE.isSelected();
+        drawB = cbShowB.isSelected();
         showField = cbShowField.isSelected();
         showGrid = cbShowGrid.isSelected();
         showStreamlines = cbShowStreamlines.isSelected();
@@ -136,13 +158,67 @@ public class Sidebar implements ListObserver {
 
     @FXML
     void objectCreateUpdate(ActionEvent event) throws IOException {
-        // TODO: load the edit inset with separate controller for linking to object creation
+        switch (combObjectCreateType.getValue().split(" ")[0]) {
+            case "Point":
+                break;
+            case "Multipole":
+
+                break;
+            case "Line":
+
+                break;
+            case "Plane":
+
+                break;
+            default:
+                apCreateInset1.getChildren().clear();
+                // apCreateInset2.getChildren().clear();
+                return;
+        }
         // TODO: load a second inset with object specifics like s or A or lambda
+        if (apCreateInset1.getChildren().isEmpty()) {
+            FXMLLoader inset = new FXMLLoader(
+                getClass().getResource("/fxml/objEditInset.fxml"));
+            inset.setController(new CreatorInset());
+            AnchorPane anchorPane = inset.load();
+            ci = inset.getController();
+            apCreateInset1.getChildren().add(anchorPane);    
+        }
     }
 
     @FXML
     void createObject(ActionEvent event) {
-
+        switch (combObjectCreateType.getValue().split(" ")[0]) {
+            case "Point":
+                PointCharge pc = new PointCharge(
+                    new Point3D(ci.getXpos(), ci.getYpos(), ci.getZpos()), ci.getCharge());
+                pc.setVelocity(new Point3D(ci.getVx(), ci.getVy(), ci.getVz()));
+                EField.getInstance().createObject(pc);
+                break;
+            case "Multipole":
+                Multipole mp = new Multipole(
+                    new Point3D(ci.getXpos(), ci.getYpos(), ci.getZpos()), ci.getCharge(),
+                    ci.getXrot(), ci.getYrot(), ci.getZrot(), false, 2, 0.01);
+                mp.setVelocity(new Point3D(ci.getVx(), ci.getVy(), ci.getVz()));
+                EField.getInstance().createObject(mp);
+                break;
+            case "Line":
+                LineCharge ln = new LineCharge(
+                    new Point3D(ci.getXpos(), ci.getYpos(), ci.getZpos()), ci.getCharge(),
+                    ci.getXrot(), ci.getYrot(), ci.getZrot(), false, 1);
+                ln.setVelocity(new Point3D(ci.getVx(), ci.getVy(), ci.getVz()));
+                EField.getInstance().createObject(ln);
+                break;
+            case "Plane":
+                PlaneCharge pl = new PlaneCharge(
+                    new Point3D(ci.getXpos(), ci.getYpos(), ci.getZpos()), ci.getCharge(),
+                    ci.getXrot(), ci.getYrot(), ci.getZrot(), false, 1);
+                pl.setVelocity(new Point3D(ci.getVx(), ci.getVy(), ci.getVz()));
+                EField.getInstance().createObject(pl);
+                break;
+            default:
+                return;
+        }
     }
 
     @FXML

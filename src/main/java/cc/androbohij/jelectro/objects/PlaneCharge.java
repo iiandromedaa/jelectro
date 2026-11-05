@@ -6,7 +6,8 @@ public class PlaneCharge extends ChargedObject {
 
     private double area;
 
-    public PlaneCharge(Point3D position, double charge) {
+    public PlaneCharge(Point3D position, double charge, 
+        double rx, double ry, double rz, boolean child, double area) {
         super(position, charge);
         //TODO Auto-generated constructor stub
     }

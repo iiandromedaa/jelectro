@@ -10,8 +10,8 @@ public class Multipole extends ChargedObject {
     private List<PointCharge> charges;
     private double chargePer;
 
-    public Multipole(Point3D position, double q, double s, int poles, 
-        double rx, double ry, double rz, boolean child) {
+    public Multipole(Point3D position, double q, 
+        double rx, double ry, double rz, boolean child, int poles, double s) {
         super(position, q, rx, ry, rz, child);
         charges = new ArrayList<>();
         chargePer = q;

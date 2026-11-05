@@ -6,7 +6,8 @@ public class LineCharge extends ChargedObject {
 
     private double length;
 
-    public LineCharge(Point3D position, double charge) {
+    public LineCharge(Point3D position, double charge, 
+        double rx, double ry, double rz, boolean child, double length) {
         super(position, charge);
         //TODO Auto-generated constructor stub
     }

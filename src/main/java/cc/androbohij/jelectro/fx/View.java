@@ -13,8 +13,6 @@ import cc.androbohij.jelectro.EField;
 import cc.androbohij.jelectro.ListObserver;
 import cc.androbohij.jelectro.fx.controllers.Sidebar;
 import cc.androbohij.jelectro.objects.ChargedObject;
-import cc.androbohij.jelectro.objects.Multipole;
-import cc.androbohij.jelectro.objects.PointCharge;
 import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
@@ -87,9 +85,6 @@ public class View extends Application implements ListObserver {
         view3d.setFill(Color.BLACK);
 
         eField.subscribe(this);
-
-        eField.createObject(new PointCharge(new Point3D(0, 0, 0), 1e-10));
-        eField.createObject(new Multipole(new Point3D(-0.5, 0, 1), 5e-9, 0.01, 4, 0, 15, 45, false));
 
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/sidebar.fxml"));
         AnchorPane UI = loader.load();
@@ -168,7 +163,7 @@ public class View extends Application implements ListObserver {
 
     private void drawField() {
         fieldVectors.getChildren().clear();
-        if (eField.isEmpty() || !showField)
+        if (eField.isEmpty() || !showField || !drawE)
             return;
         double xyMax = vectorBounds*vectorDensity;
         double zMax = field2DOnly ? 0 : xyMax;
@@ -195,7 +190,7 @@ public class View extends Application implements ListObserver {
     private void drawStreamlines() {
         long t = System.currentTimeMillis();
         streamlines.getChildren().clear();
-        if (eField.isEmpty() || !showStreamlines)
+        if (eField.isEmpty() || !showStreamlines || !drawE)
             return;
         for (int p = 0; p < streamlinePasses; p++) {
             for (ChargedObject co : eField.getObjects()) {
