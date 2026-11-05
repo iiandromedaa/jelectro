@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -163,7 +164,7 @@ public class View extends Application implements ListObserver {
 
     private void drawField() {
         fieldVectors.getChildren().clear();
-        if (eField.isEmpty() || !showField || !drawE)
+        if (eField.isEmpty() || !showField)
             return;
         double xyMax = vectorBounds*vectorDensity;
         double zMax = field2DOnly ? 0 : xyMax;
@@ -190,7 +191,7 @@ public class View extends Application implements ListObserver {
     private void drawStreamlines() {
         long t = System.currentTimeMillis();
         streamlines.getChildren().clear();
-        if (eField.isEmpty() || !showStreamlines || !drawE)
+        if (eField.isEmpty() || !showStreamlines)
             return;
         for (int p = 0; p < streamlinePasses; p++) {
             for (ChargedObject co : eField.getObjects()) {
@@ -199,26 +200,38 @@ public class View extends Application implements ListObserver {
                     streamlineStartDistance*Math.max(p, 1), 
                     streamlinesPerObject, 2*p
                 );
-                List<Group> lines = points.stream()
-                    .map(point ->
-                        LineDrawer.draw(eField.getStreamline(point, 
-                            streamlineMaxSteps, streamlineStepSize, 
-                            true), LineDrawer.WHITE)
-                    ).filter(Objects::nonNull)
-                    .collect(Collectors.toList());
+                List<Group> lines = new ArrayList<>();
+
+                if (drawE)
+                    collectLines(lines, points, eField::getEAtPoint, LineDrawer.WHITE);
+                if (drawB)
+                    collectLines(lines, points, eField::getBAtPoint, LineDrawer.ORANGE);
                 
-                lines.addAll(points.stream()
-                    .map(point ->
-                        LineDrawer.draw(eField.getStreamline(point, 
-                            streamlineMaxSteps, streamlineStepSize, 
-                            false), LineDrawer.WHITE)
-                    ).filter(Objects::nonNull)
-                    .collect(Collectors.toList())
-                );
                 Platform.runLater(() -> streamlines.getChildren().addAll(lines));
             }
         }
         log.info(String.format("Streamlines took %dms", System.currentTimeMillis()-t));
+    }
+
+    private void collectLines(List<Group> lines, List<Point3D> points, 
+        Function<Point3D, Point3D> function, PhongMaterial mat) {
+        lines.addAll(points.stream()
+            .map(point ->
+                LineDrawer.draw(eField.getStreamline(point, 
+                    streamlineMaxSteps, streamlineStepSize, 
+                    true, function), mat)
+            ).filter(Objects::nonNull)
+            .collect(Collectors.toList())
+        );
+        
+        lines.addAll(points.stream()
+            .map(point ->
+                LineDrawer.draw(eField.getStreamline(point, 
+                    streamlineMaxSteps, streamlineStepSize, 
+                    false, function), mat)
+            ).filter(Objects::nonNull)
+            .collect(Collectors.toList())
+        );
     }
 
     private List<Point3D> fibonacciSphere(Point3D center, double r, int n, double shift) {

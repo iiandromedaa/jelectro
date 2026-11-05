@@ -3,6 +3,7 @@ package cc.androbohij.jelectro;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Function;
 
 import cc.androbohij.jelectro.objects.ChargedObject;
 import javafx.geometry.Point3D;
@@ -54,6 +55,14 @@ public class EField {
         return SumEVec;
     }
 
+    public Point3D getBAtPoint(Point3D position) {
+        Point3D SumBVec = Point3D.ZERO;
+        for (ChargedObject chargedObject : objects) {
+            SumBVec = SumBVec.add(chargedObject.getB(position));
+        }
+        return SumBVec;
+    }
+
     public void subscribe(ListObserver observer) {
         observers.add(observer);
     }
@@ -66,7 +75,8 @@ public class EField {
         return objects.isEmpty();
     }
 
-    public List<Point3D> getStreamline(Point3D start, int steps, double stepSize, boolean fwd) {
+    public List<Point3D> getStreamline(Point3D start, int steps, double stepSize, 
+        boolean fwd, Function<Point3D, Point3D> field) {
         ArrayList<Point3D> path = new ArrayList<>();
         Point3D p = start;
         int sign = fwd ? 1 : -1;
@@ -88,7 +98,7 @@ public class EField {
                     return path;
                 }
             }
-            Point3D e = getEAtPoint(p);
+            Point3D e = field.apply(p);
             
             if (e.magnitude() < 0.001 || minR > 3.5) {
                 if (!fwd)
@@ -100,9 +110,9 @@ public class EField {
 
             if (previousDirection != null) {
                 double alignment = previousDirection.dotProduct(direction);
-                if (alignment > 0.95) {
+                if (alignment > 0.99) {
                     currentStep = Math.min(currentStep * 1.2, maxStep);
-                } else if (alignment < 0.95) {
+                } else if (alignment < 0.99) {
                     currentStep = Math.max(currentStep * 0.5, stepSize);
                 }
             }

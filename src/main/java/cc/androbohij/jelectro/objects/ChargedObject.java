@@ -16,7 +16,7 @@ public abstract class ChargedObject {
     public ChargedObject(Point3D position, double charge, 
         double rx, double ry, double rz, boolean child) {
         velocity = Point3D.ZERO; 
-        handle = new Handle();
+        handle = new Handle(this);
         handle.translate(position);
         handle.rotate(rx, ry, rz);
         this.charge = charge;
@@ -37,6 +37,8 @@ public abstract class ChargedObject {
      * @return a vector for E at that point p
      */
     public abstract Point3D getE(Point3D p);
+
+    public abstract Point3D getB(Point3D p);
 
     public double getCharge() {
         return charge;
@@ -62,7 +64,7 @@ public abstract class ChargedObject {
     }
 
     public Point3D getVelocity() {
-        return velocity;
+        return velocity;     
     }
 
     public void setVelocity(Point3D velocity) {

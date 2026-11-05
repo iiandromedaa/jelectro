@@ -7,6 +7,8 @@ public abstract class Settings {
      */
     public static final double K = 8.987e9;
 
+    public static final double mu_nought = 4*Math.PI*1e-7;
+
     /**
      * <p>how far out in meters to consider vectors to display</p>
      * <p>bounds covers a cube centered on the origin spanning 

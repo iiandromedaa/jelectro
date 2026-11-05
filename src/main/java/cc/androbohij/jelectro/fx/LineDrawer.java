@@ -23,13 +23,9 @@ public class LineDrawer {
     public static final PhongMaterial WHITE, BLUE, ORANGE;
 
     static {
-        WHITE = new PhongMaterial();
-        BLUE = new PhongMaterial();
-        ORANGE = new PhongMaterial();
-
-        setUpMaterial(WHITE, Color.WHITE);
-        setUpMaterial(BLUE, Color.DEEPSKYBLUE);
-        setUpMaterial(ORANGE, Color.ORANGE);
+        WHITE = setUpMaterial(new PhongMaterial(), Color.WHITE);
+        BLUE = setUpMaterial(new PhongMaterial(), Color.DEEPSKYBLUE);
+        ORANGE = setUpMaterial(new PhongMaterial(), Color.ORANGE);
     }
     
     public static Group draw(Point3D p1, Point3D p2, boolean vector, PhongMaterial mat) {
@@ -72,9 +68,14 @@ public class LineDrawer {
     }
 
     public static Group draw(List<Point3D> path, PhongMaterial mat) {
+        if (path.isEmpty())
+            return null;
         Group lines = new Group();
         for (int i = 0; i < path.size()-1; i++) {
-            lines.getChildren().add(draw(path.get(i), path.get(i+1), false, mat));
+            Group line = draw(path.get(i), path.get(i+1), false, mat);
+            if (line == null)
+                return null;
+            lines.getChildren().add(line);
         }
         return lines;
     }
@@ -85,10 +86,11 @@ public class LineDrawer {
         return image;
     }
 
-    public static void setUpMaterial(PhongMaterial mat, Color color) {
+    public static PhongMaterial setUpMaterial(PhongMaterial mat, Color color) {
         mat.setDiffuseColor(color);
         mat.setSpecularColor(color);
         mat.setSelfIlluminationMap(makeSelfIllumMap(color));
+        return mat;
     }
 
 }

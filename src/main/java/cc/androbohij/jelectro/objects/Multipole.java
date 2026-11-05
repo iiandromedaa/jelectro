@@ -27,6 +27,16 @@ public class Multipole extends ChargedObject {
     }
 
     @Override
+    public Point3D getB(Point3D p) {
+        Point3D SumBVec = Point3D.ZERO;
+        for (ChargedObject chargedObject : charges) {
+            chargedObject.setVelocity(getVelocity());
+            SumBVec = SumBVec.add(chargedObject.getB(p));
+        }
+        return SumBVec;
+    }
+
+    @Override
     public void setCharge(double q) {
         for (int i = 0; i < charges.size(); i++) {
             charges.get(i).setCharge((i % 2 == 0) ? q : -q);
@@ -38,6 +48,7 @@ public class Multipole extends ChargedObject {
     }
 
     private void addCharge(PointCharge pointCharge) {
+        pointCharge.setVelocity(getVelocity());
         charges.add(pointCharge);
         getHandle().getChildren().add(pointCharge.getHandle());
     }

@@ -1,5 +1,6 @@
 package cc.androbohij.jelectro.fx;
 
+import cc.androbohij.jelectro.objects.ChargedObject;
 import javafx.geometry.Point3D;
 import javafx.scene.Group;
 import javafx.scene.Node;
@@ -12,9 +13,11 @@ public class Handle extends Group {
     public final Rotate rx = new Rotate(0, Rotate.X_AXIS);
     public final Rotate ry = new Rotate(0, Rotate.Y_AXIS);
     public final Rotate rz = new Rotate(0, Rotate.Z_AXIS);
+    public final ChargedObject parent;
 
-    public Handle() {
+    public Handle(ChargedObject parent) {
         super();
+        this.parent = parent;
         getTransforms().addAll(translate, rz, ry, rx);
     }
 

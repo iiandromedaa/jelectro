@@ -12,10 +12,14 @@ public class PlaneCharge extends ChargedObject {
         //TODO Auto-generated constructor stub
     }
 
-    @Override
     public Point3D getE(Point3D p) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'getE'");
+    }
+
+    public Point3D getB(Point3D p) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getB'");
     }
     
 }

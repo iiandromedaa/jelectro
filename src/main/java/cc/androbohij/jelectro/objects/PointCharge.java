@@ -1,6 +1,8 @@
 package cc.androbohij.jelectro.objects;
 
 import static cc.androbohij.jelectro.Settings.K;
+import static cc.androbohij.jelectro.Settings.mu_nought;
+
 import javafx.geometry.Point3D;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
@@ -30,6 +32,16 @@ public class PointCharge extends ChargedObject {
             return Point3D.ZERO;
         Point3D sepVector = p.subtract(getPosition()).normalize();
         return sepVector.multiply((getCharge()*K)/(Math.pow(r, 2)));
+    }
+
+    public Point3D getB(Point3D p) {
+        double r = getPosition().distance(p);
+        if (r < 0.01)
+            return Point3D.ZERO;
+        Point3D sepVector = p.subtract(getPosition()).normalize();
+        Point3D step1 = getVelocity().multiply(getCharge())
+        .crossProduct(sepVector).multiply((1/(Math.pow(r, 2))));
+        return step1.multiply(3e8);
     }
 
     @Override
