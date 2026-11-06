@@ -1,9 +1,12 @@
 package cc.androbohij.jelectro.objects;
 
+import static cc.androbohij.jelectro.Settings.mu_nought;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import javafx.geometry.Point3D;
+
 
 public class Multipole extends ChargedObject {
 
@@ -28,13 +31,41 @@ public class Multipole extends ChargedObject {
 
     @Override
     public Point3D getB(Point3D p) {
+        return getBSums(p);
+        // Point3D SumBVec = Point3D.ZERO;
+        // for (ChargedObject chargedObject : charges) {
+        //     SumBVec = SumBVec.add(((PointCharge)chargedObject).getB(p, getVelocity()));
+        // }
+        // return SumBVec;
+    }
+
+    private Point3D getBSums(Point3D point) {
         Point3D SumBVec = Point3D.ZERO;
         for (ChargedObject chargedObject : charges) {
             chargedObject.setVelocity(getVelocity());
-            SumBVec = SumBVec.add(chargedObject.getB(p));
+            SumBVec = SumBVec.add(((PointCharge)chargedObject).getB(point));
         }
         return SumBVec;
     }
+
+    /**
+     * from http://kirkmcd.princeton.edu/examples/movingdipole.pdf
+     * it produces a shape that is like a magnetic dipole, but flattened along v
+     * i thought for a while this was wrong but the math does seem to check out
+     */
+    // private Point3D getBSumless(Point3D point) {
+    //     // TODO maybe separate dipole class that also uses the coordinate-free E equation
+    //     // maybe keeping multipole around
+    //     Point3D p = charges.get(1).getPosition()
+    //         .subtract(charges.get(0).getPosition()).multiply(chargePer);
+
+    //     Point3D rhat = point.subtract(getPosition()).normalize();
+    //     Point3D nom = getVelocity().crossProduct(rhat)
+    //         .multiply(p.dotProduct(rhat)).multiply(3)
+    //         .subtract(getVelocity().crossProduct(p));
+    //     return nom.multiply(1.0 / Math.pow(getPosition().distance(point), 3))
+    //         .multiply(mu_nought/(4.0*Math.PI));
+    // }
 
     @Override
     public void setCharge(double q) {
