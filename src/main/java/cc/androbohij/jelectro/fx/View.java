@@ -203,9 +203,11 @@ public class View extends Application implements ListObserver {
                 List<Group> lines = new ArrayList<>();
 
                 if (drawE)
-                    collectLines(lines, points, eField::getEAtPoint, LineDrawer.WHITE);
+                    collectLines(lines, points, eField::getEAtPoint, 
+                        LineDrawer.WHITE, streamlineMaxSteps);
                 if (drawB)
-                    collectLines(lines, points, eField::getBAtPoint, LineDrawer.ORANGE);
+                    collectLines(lines, points, eField::getBAtPoint, 
+                        LineDrawer.ORANGE, streamlineMaxSteps/10);
                 
                 Platform.runLater(() -> streamlines.getChildren().addAll(lines));
             }
@@ -214,11 +216,11 @@ public class View extends Application implements ListObserver {
     }
 
     private void collectLines(List<Group> lines, List<Point3D> points, 
-        Function<Point3D, Point3D> function, PhongMaterial mat) {
+        Function<Point3D, Point3D> function, PhongMaterial mat, int maxSteps) {
         lines.addAll(points.stream()
             .map(point ->
                 LineDrawer.draw(eField.getStreamline(point, 
-                    streamlineMaxSteps, streamlineStepSize, 
+                    maxSteps, streamlineStepSize, 
                     true, function), mat)
             ).filter(Objects::nonNull)
             .collect(Collectors.toList())
@@ -227,7 +229,7 @@ public class View extends Application implements ListObserver {
         lines.addAll(points.stream()
             .map(point ->
                 LineDrawer.draw(eField.getStreamline(point, 
-                    streamlineMaxSteps, streamlineStepSize, 
+                    maxSteps, streamlineStepSize, 
                     false, function), mat)
             ).filter(Objects::nonNull)
             .collect(Collectors.toList())

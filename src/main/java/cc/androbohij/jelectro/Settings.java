@@ -36,7 +36,7 @@ public abstract class Settings {
 
     public static double streamlineStepSize = 0.1;
 
-    public static int streamlineMaxSteps = 100;
+    public static int streamlineMaxSteps = 50;
 
     /**
      * <p>how many streamlines to trace from each object</p>

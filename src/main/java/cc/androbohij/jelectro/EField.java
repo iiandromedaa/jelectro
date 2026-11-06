@@ -7,6 +7,7 @@ import java.util.function.Function;
 
 import cc.androbohij.jelectro.objects.ChargedObject;
 import javafx.geometry.Point3D;
+import javafx.scene.effect.Light.Point;
 
 public class EField {
 
@@ -98,6 +99,7 @@ public class EField {
                     return path;
                 }
             }
+
             Point3D e = field.apply(p);
             
             if (e.magnitude() < 0.001 || minR > 3.5) {
@@ -106,7 +108,15 @@ public class EField {
                 return path;
             }
 
-            Point3D direction = e.normalize().multiply(sign);
+            // current step
+            Point3D direction1 = e.normalize().multiply(sign);
+            Point3D pPredictor = p.add(direction1.multiply(currentStep));
+            
+            // next step's direction
+            Point3D direction2 = field.apply(pPredictor).normalize().multiply(sign);
+
+            // avg directions between step n and n+1
+            Point3D direction = direction1.add(direction2).normalize();
 
             if (previousDirection != null) {
                 double alignment = previousDirection.dotProduct(direction);
