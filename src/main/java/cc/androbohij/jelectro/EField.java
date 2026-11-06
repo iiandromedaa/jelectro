@@ -7,7 +7,6 @@ import java.util.function.Function;
 
 import cc.androbohij.jelectro.objects.ChargedObject;
 import javafx.geometry.Point3D;
-import javafx.scene.effect.Light.Point;
 
 public class EField {
 
@@ -83,7 +82,7 @@ public class EField {
         int sign = fwd ? 1 : -1;
 
         double currentStep = stepSize;
-        double maxStep = stepSize * 15;
+        double maxStep = stepSize * 10;
 
         Point3D previousDirection = null;
 
@@ -93,23 +92,24 @@ public class EField {
             for (ChargedObject chargedObject : objects) {
                 double r = p.distance(chargedObject.getPosition());
                 minR = Math.min(r, minR);
-                if (r < 0.1) {
+                if (r < 0.15) {
                     if (!fwd)
                         Collections.reverse(path);
                     return path;
                 }
             }
 
-            Point3D e = field.apply(p);
+            Point3D em = field.apply(p);
             
-            if (e.magnitude() < 0.001 || minR > 3.5) {
+            // we gotta accept really small values because at these speeds B is tiny
+            if (em.magnitude() < 1e-15 || minR > 3.5) {
                 if (!fwd)
                     Collections.reverse(path);
                 return path;
             }
 
             // current step
-            Point3D direction1 = e.normalize().multiply(sign);
+            Point3D direction1 = em.normalize().multiply(sign);
             Point3D pPredictor = p.add(direction1.multiply(currentStep));
             
             // next step's direction

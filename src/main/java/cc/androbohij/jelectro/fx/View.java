@@ -207,7 +207,7 @@ public class View extends Application implements ListObserver {
                         LineDrawer.WHITE, streamlineMaxSteps);
                 if (drawB)
                     collectLines(lines, points, eField::getBAtPoint, 
-                        LineDrawer.ORANGE, streamlineMaxSteps/10);
+                        LineDrawer.ORANGE, streamlineMaxSteps/5);
                 
                 Platform.runLater(() -> streamlines.getChildren().addAll(lines));
             }

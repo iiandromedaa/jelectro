@@ -41,7 +41,7 @@ public class PointCharge extends ChargedObject {
         Point3D sepVector = p.subtract(getPosition()).normalize();
         Point3D step1 = getVelocity().multiply(getCharge())
         .crossProduct(sepVector).multiply((1/(Math.pow(r, 2))));
-        return step1.multiply(3e8);
+        return step1.multiply(mu_nought/(4*Math.PI));
     }
 
     @Override
