@@ -1,6 +1,7 @@
 package cc.androbohij.jelectro.objects;
 
-import static cc.androbohij.jelectro.Settings.mu_nought;
+import static cc.androbohij.jelectro.Settings.K;
+import static cc.androbohij.jelectro.Settings.MU_NOUGHT;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,12 +23,24 @@ public class Multipole extends ChargedObject {
     }
 
     public Point3D getE(Point3D p) {
+        // return getESumless(p);
         Point3D SumEVec = Point3D.ZERO;
         for (ChargedObject chargedObject : charges) {
             SumEVec = SumEVec.add(chargedObject.getE(p));
         }
         return SumEVec;
     }
+
+    // private Point3D getESumless(Point3D point) {
+    //     Point3D p = charges.get(0).getPosition()
+    //         .subtract(charges.get(1).getPosition()).multiply(chargePer);
+    //     Point3D rhat = point.subtract(getPosition()).normalize();
+    //     Point3D nom = rhat
+    //         .multiply(p.dotProduct(rhat)).multiply(3)
+    //         .subtract(p);
+    //     return nom.multiply(1.0 / Math.pow(getPosition().distance(point), 3))
+    //         .multiply(K);
+    // }
 
     @Override
     public Point3D getB(Point3D p) {
@@ -50,12 +63,12 @@ public class Multipole extends ChargedObject {
 
     /**
      * from http://kirkmcd.princeton.edu/examples/movingdipole.pdf
-     * it produces a shape that is like a magnetic dipole, but flattened along v
+     * it produces a shape that is like a the cross-section magnetic dipole, but extruded along v
      * i thought for a while this was wrong but the math does seem to check out
      */
     // private Point3D getBSumless(Point3D point) {
     //     // TODO maybe separate dipole class that also uses the coordinate-free E equation
-    //     // maybe keeping multipole around
+    //     // maybe keeping multipole around as a parent class
     //     Point3D p = charges.get(1).getPosition()
     //         .subtract(charges.get(0).getPosition()).multiply(chargePer);
 

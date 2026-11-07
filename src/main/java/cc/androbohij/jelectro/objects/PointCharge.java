@@ -1,7 +1,7 @@
 package cc.androbohij.jelectro.objects;
 
 import static cc.androbohij.jelectro.Settings.K;
-import static cc.androbohij.jelectro.Settings.mu_nought;
+import static cc.androbohij.jelectro.Settings.MU_NOUGHT;
 
 import javafx.geometry.Point3D;
 import javafx.scene.paint.Color;
@@ -34,20 +34,16 @@ public class PointCharge extends ChargedObject {
         return rhat.multiply((getCharge()*K)/(Math.pow(r, 2)));
     }
 
-    public Point3D getB(Point3D p) {
-        double r = getPosition().distance(p);
-        if (r < 0.01)
-            return Point3D.ZERO;
-        Point3D rhat = p.subtract(getPosition()).normalize();
-        Point3D step1 = getVelocity().crossProduct(rhat)
-            .multiply(getCharge())
-            .multiply((mu_nought/(4.0*Math.PI))/(Math.pow(r, 2.0)));
-        return step1;
-    }
-
-    public Point3D getB(Point3D p, Point3D v) {
-        return v.crossProduct(getE(p));
-    }
+    // public Point3D getB(Point3D p) {
+    //     double r = getPosition().distance(p);
+    //     if (r < 0.01)
+    //         return Point3D.ZERO;
+    //     Point3D rhat = p.subtract(getPosition()).normalize();
+    //     Point3D step1 = getVelocity().crossProduct(rhat)
+    //         .multiply(getCharge())
+    //         .multiply((MU_NOUGHT/(4.0*Math.PI))/(Math.pow(r, 2.0)));
+    //     return step1;
+    // }
 
     @Override
     public void setCharge(double q) {
