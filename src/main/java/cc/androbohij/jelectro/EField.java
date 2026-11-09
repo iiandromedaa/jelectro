@@ -102,7 +102,7 @@ public class EField {
             Point3D em = field.apply(p);
             
             // we gotta accept really small values because at these speeds B is tiny
-            if (em.magnitude() < 1e-15 || minR > 3.5) {
+            if (em.magnitude() < 1e-20 || minR > 3.5) {
                 if (!fwd)
                     Collections.reverse(path);
                 return path;
