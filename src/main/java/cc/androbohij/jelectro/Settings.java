@@ -7,7 +7,9 @@ public abstract class Settings {
      */
     public static final double K = 8.987e9;
 
-    public static final double mu_nought = 4*Math.PI*1e-7;
+    public static final double EPSILON_NOUGHT = 8.854e-12;
+
+    public static final double MU_NOUGHT = 1.2566e-6;
 
     /**
      * <p>how far out in meters to consider vectors to display</p>

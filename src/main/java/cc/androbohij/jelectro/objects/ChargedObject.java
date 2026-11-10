@@ -1,5 +1,8 @@
 package cc.androbohij.jelectro.objects;
 
+import static cc.androbohij.jelectro.Settings.EPSILON_NOUGHT;
+import static cc.androbohij.jelectro.Settings.MU_NOUGHT;
+
 import cc.androbohij.jelectro.fx.Handle;
 import javafx.geometry.Point3D;
 import javafx.scene.Node;
@@ -38,7 +41,11 @@ public abstract class ChargedObject {
      */
     public abstract Point3D getE(Point3D p);
 
-    public abstract Point3D getB(Point3D p);
+    public Point3D getB(Point3D p) {
+        return getVelocity().crossProduct(getE(p))
+            .multiply(MU_NOUGHT)
+            .multiply(EPSILON_NOUGHT);
+    };
 
     public double getCharge() {
         return charge;

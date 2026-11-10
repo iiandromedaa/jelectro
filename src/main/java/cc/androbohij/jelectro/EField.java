@@ -102,7 +102,10 @@ public class EField {
             Point3D em = field.apply(p);
             
             // we gotta accept really small values because at these speeds B is tiny
-            if (em.magnitude() < 1e-20 || minR > 3.5) {
+            // + checking if the curl brought us back where we started
+            // because my integrator is undershooting somehow so it spirals inwards if you let it
+            if (em.magnitude() < 1e-25 || minR > 3.5 ||
+                (previousDirection != null && start.distance(p) < stepSize*0.75)) {
                 if (!fwd)
                     Collections.reverse(path);
                 return path;
