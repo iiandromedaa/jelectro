@@ -44,7 +44,7 @@ public class Multipole extends ChargedObject {
 
     @Override
     public Point3D getB(Point3D p) {
-        return getBSums(p);
+        return getBSumless(p);
         // Point3D SumBVec = Point3D.ZERO;
         // for (ChargedObject chargedObject : charges) {
         //     SumBVec = SumBVec.add(((PointCharge)chargedObject).getB(p, getVelocity()));
@@ -59,6 +59,21 @@ public class Multipole extends ChargedObject {
             SumBVec = SumBVec.add(((PointCharge)chargedObject).getB(point));
         }
         return SumBVec;
+    }
+
+    /**
+     * the proper magnetic dipole equation, but its different than what i get from superposition
+     */
+    private Point3D getBSumless(Point3D point) {
+        Point3D p = charges.get(1).getPosition()
+            .subtract(charges.get(0).getPosition()).multiply(chargePer);
+        Point3D m = getVelocity().crossProduct(p);
+        Point3D rhat = point.subtract(getPosition()).normalize();
+        Point3D nom = rhat
+            .multiply(m.dotProduct(rhat)).multiply(3)
+            .subtract(m);
+        return nom.multiply(1.0 / Math.pow(getPosition().distance(point), 3))
+            .multiply(mu_nought/(4.0*Math.PI));
     }
 
     /**
