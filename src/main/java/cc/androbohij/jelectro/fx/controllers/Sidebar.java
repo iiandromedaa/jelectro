@@ -18,7 +18,7 @@ import cc.androbohij.jelectro.ListObserver;
 import cc.androbohij.jelectro.fx.View;
 import cc.androbohij.jelectro.objects.ChargedObject;
 import cc.androbohij.jelectro.objects.LineCharge;
-import cc.androbohij.jelectro.objects.Multipole;
+import cc.androbohij.jelectro.objects.Dipole;
 import cc.androbohij.jelectro.objects.PlaneCharge;
 import cc.androbohij.jelectro.objects.PointCharge;
 
@@ -86,7 +86,7 @@ public class Sidebar implements ListObserver {
         populateComboBox();
         combObjectCreateType.getItems()
             .addAll(
-                "Select", "Point Charge", "Multipole", 
+                "Select", "Point Charge", "Dipole", 
                 "Line of Charge", "Plane of Charge"
         );
     }
@@ -161,7 +161,7 @@ public class Sidebar implements ListObserver {
         switch (combObjectCreateType.getValue().split(" ")[0]) {
             case "Point":
                 break;
-            case "Multipole":
+            case "Dipole":
 
                 break;
             case "Line":
@@ -195,12 +195,12 @@ public class Sidebar implements ListObserver {
                 pc.setVelocity(new Point3D(ci.getVx(), ci.getVy(), ci.getVz()));
                 EField.getInstance().createObject(pc);
                 break;
-            case "Multipole":
-                Multipole mp = new Multipole(
+            case "Dipole":
+                Dipole dp = new Dipole(
                     new Point3D(ci.getXpos(), ci.getYpos(), ci.getZpos()), ci.getCharge()/1e9,
                     ci.getXrot(), ci.getYrot(), ci.getZrot(), false, 2, 0.01);
-                mp.setVelocity(new Point3D(ci.getVx(), ci.getVy(), ci.getVz()));
-                EField.getInstance().createObject(mp);
+                dp.setVelocity(new Point3D(ci.getVx(), ci.getVy(), ci.getVz()));
+                EField.getInstance().createObject(dp);
                 break;
             case "Line":
                 LineCharge ln = new LineCharge(

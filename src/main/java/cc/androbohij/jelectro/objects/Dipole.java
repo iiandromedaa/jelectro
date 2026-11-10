@@ -1,6 +1,7 @@
 package cc.androbohij.jelectro.objects;
 
 import static cc.androbohij.jelectro.Settings.mu_nought;
+import static cc.androbohij.jelectro.Settings.K;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,12 +9,12 @@ import java.util.List;
 import javafx.geometry.Point3D;
 
 
-public class Multipole extends ChargedObject {
+public class Dipole extends ChargedObject {
 
     private List<PointCharge> charges;
     private double chargePer;
 
-    public Multipole(Point3D position, double q, 
+    public Dipole(Point3D position, double q, 
         double rx, double ry, double rz, boolean child, int poles, double s) {
         super(position, q, rx, ry, rz, child);
         charges = new ArrayList<>();
@@ -21,12 +22,15 @@ public class Multipole extends ChargedObject {
         createMultipole(poles, chargePer, s);
     }
 
-    public Point3D getE(Point3D p) {
-        Point3D SumEVec = Point3D.ZERO;
-        for (ChargedObject chargedObject : charges) {
-            SumEVec = SumEVec.add(chargedObject.getE(p));
-        }
-        return SumEVec;
+    public Point3D getE(Point3D point) {
+        Point3D p = charges.get(1).getPosition()
+            .subtract(charges.get(0).getPosition()).multiply(chargePer);
+        Point3D rhat = point.subtract(getPosition()).normalize();
+        Point3D nom = rhat
+            .multiply(p.dotProduct(rhat)).multiply(3)
+            .subtract(p);
+        return nom.multiply(1.0 / Math.pow(getPosition().distance(point), 3))
+            .multiply(K);
     }
 
     @Override
