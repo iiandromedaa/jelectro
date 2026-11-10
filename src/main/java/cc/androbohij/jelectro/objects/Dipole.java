@@ -75,7 +75,7 @@ public class Dipole extends ChargedObject {
             .multiply(m.dotProduct(rhat)).multiply(3)
             .subtract(m);
         return nom.multiply(1.0 / Math.pow(getPosition().distance(point), 3))
-            .multiply(mu_nought/(4.0*Math.PI));
+            .multiply(MU_NOUGHT/(4.0*Math.PI));
     }
 
     /**
