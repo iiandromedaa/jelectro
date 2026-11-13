@@ -198,21 +198,21 @@ public class Sidebar implements ListObserver {
             case "Dipole":
                 Dipole dp = new Dipole(
                     new Point3D(ci.getXpos(), ci.getYpos(), ci.getZpos()), ci.getCharge()/1e9,
-                    ci.getXrot(), ci.getYrot(), ci.getZrot(), false, 2, 0.01);
+                    ci.getXrot(), ci.getYrot(), ci.getZrot(), 0.01);
                 dp.setVelocity(new Point3D(ci.getVx(), ci.getVy(), ci.getVz()));
                 EField.getInstance().createObject(dp);
                 break;
             case "Line":
                 LineCharge ln = new LineCharge(
                     new Point3D(ci.getXpos(), ci.getYpos(), ci.getZpos()), ci.getCharge()/1e9,
-                    ci.getXrot(), ci.getYrot(), ci.getZrot(), false, 1);
+                    ci.getXrot(), ci.getYrot(), ci.getZrot(), 1);
                 ln.setVelocity(new Point3D(ci.getVx(), ci.getVy(), ci.getVz()));
                 EField.getInstance().createObject(ln);
                 break;
             case "Plane":
                 PlaneCharge pl = new PlaneCharge(
                     new Point3D(ci.getXpos(), ci.getYpos(), ci.getZpos()), ci.getCharge()/1e9,
-                    ci.getXrot(), ci.getYrot(), ci.getZrot(), false, 1);
+                    ci.getXrot(), ci.getYrot(), ci.getZrot(), 1);
                 pl.setVelocity(new Point3D(ci.getVx(), ci.getVy(), ci.getVz()));
                 EField.getInstance().createObject(pl);
                 break;

@@ -3,28 +3,35 @@ package cc.androbohij.jelectro.objects;
 import static cc.androbohij.jelectro.Settings.K;
 import static cc.androbohij.jelectro.Settings.MU_NOUGHT;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javafx.geometry.Point3D;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.PhongMaterial;
+import javafx.scene.shape.Sphere;
 
 
 public class Dipole extends ChargedObject {
 
-    private List<PointCharge> charges;
-    private double chargePer;
+    private Point3D p;
+    private double s;
+    private double q;
 
     public Dipole(Point3D position, double q, 
-        double rx, double ry, double rz, boolean child, int poles, double s) {
-        super(position, q, rx, ry, rz, child);
-        charges = new ArrayList<>();
-        chargePer = q;
-        createMultipole(poles, chargePer, s);
+        double rx, double ry, double rz, double s) {
+        super(position, q, rx, ry, rz);
+        this.q = q;
+        this.s = s;
+        p = new Point3D(s, 0, 0).multiply(q);
+        p = getHandle().rotform(p);
+        setUpDipole();
     }
 
     public Point3D getE(Point3D point) {
-        Point3D p = charges.get(1).getPosition()
-            .subtract(charges.get(0).getPosition()).multiply(chargePer);
+        return getESumless(point);
+    }
+
+    private Point3D getESumless(Point3D point) {
+        // Point3D p = charges.get(0).getPosition()
+            // .subtract(charges.get(1).getPosition()).multiply(chargePer);
         Point3D rhat = point.subtract(getPosition()).normalize();
         Point3D nom = rhat
             .multiply(p.dotProduct(rhat)).multiply(3)
@@ -33,49 +40,9 @@ public class Dipole extends ChargedObject {
             .multiply(K);
     }
 
-    // private Point3D getESumless(Point3D point) {
-    //     Point3D p = charges.get(0).getPosition()
-    //         .subtract(charges.get(1).getPosition()).multiply(chargePer);
-    //     Point3D rhat = point.subtract(getPosition()).normalize();
-    //     Point3D nom = rhat
-    //         .multiply(p.dotProduct(rhat)).multiply(3)
-    //         .subtract(p);
-    //     return nom.multiply(1.0 / Math.pow(getPosition().distance(point), 3))
-    //         .multiply(K);
-    // }
-
     @Override
     public Point3D getB(Point3D p) {
         return getBSumless(p);
-        // Point3D SumBVec = Point3D.ZERO;
-        // for (ChargedObject chargedObject : charges) {
-        //     SumBVec = SumBVec.add(((PointCharge)chargedObject).getB(p, getVelocity()));
-        // }
-        // return SumBVec;
-    }
-
-    private Point3D getBSums(Point3D point) {
-        Point3D SumBVec = Point3D.ZERO;
-        for (ChargedObject chargedObject : charges) {
-            chargedObject.setVelocity(getVelocity());
-            SumBVec = SumBVec.add(((PointCharge)chargedObject).getB(point));
-        }
-        return SumBVec;
-    }
-
-    /**
-     * the proper magnetic dipole equation, but its different than what i get from superposition
-     */
-    private Point3D getBSumless(Point3D point) {
-        Point3D p = charges.get(1).getPosition()
-            .subtract(charges.get(0).getPosition()).multiply(chargePer);
-        Point3D m = getVelocity().crossProduct(p);
-        Point3D rhat = point.subtract(getPosition()).normalize();
-        Point3D nom = rhat
-            .multiply(m.dotProduct(rhat)).multiply(3)
-            .subtract(m);
-        return nom.multiply(1.0 / Math.pow(getPosition().distance(point), 3))
-            .multiply(MU_NOUGHT/(4.0*Math.PI));
     }
 
     /**
@@ -83,53 +50,47 @@ public class Dipole extends ChargedObject {
      * it produces a shape that is like a the cross-section magnetic dipole, but extruded along v
      * i thought for a while this was wrong but the math does seem to check out
      */
-    // private Point3D getBSumless(Point3D point) {
-    //     // TODO maybe separate dipole class that also uses the coordinate-free E equation
-    //     // maybe keeping multipole around as a parent class
-    //     Point3D p = charges.get(1).getPosition()
-    //         .subtract(charges.get(0).getPosition()).multiply(chargePer);
+    private Point3D getBSumless(Point3D point) {
+        Point3D rhat = point.subtract(getPosition()).normalize();
+        Point3D nom = getVelocity().crossProduct(rhat)
+            .multiply(p.dotProduct(rhat)).multiply(3)
+            .subtract(getVelocity().crossProduct(p));
+        return nom.multiply(1.0 / Math.pow(getPosition().distance(point), 3))
+            .multiply(MU_NOUGHT/(4.0*Math.PI));
+    }
 
-    //     Point3D rhat = point.subtract(getPosition()).normalize();
-    //     Point3D nom = getVelocity().crossProduct(rhat)
-    //         .multiply(p.dotProduct(rhat)).multiply(3)
-    //         .subtract(getVelocity().crossProduct(p));
-    //     return nom.multiply(1.0 / Math.pow(getPosition().distance(point), 3))
-    //         .multiply(mu_nought/(4.0*Math.PI));
-    // }
+    private void setUpDipole() {
+        getHandle().getChildren().clear();
+        for (int i = 0; i < 2; i++) {
+            Sphere sp = new Sphere(0.1);
+            if (i % 2 == (q > 0 ? 0 : 1)) {
+                sp.translateXProperty().set((i % 2 == 0 ? s : -s));
+                sp.setMaterial(new PhongMaterial(q == 0 ? Color.WHITE : Color.RED));
+            } else {
+                sp.translateXProperty().set((i % 2 == 0 ? s : -s));
+                sp.setMaterial(new PhongMaterial(q == 0 ? Color.WHITE : Color.DEEPSKYBLUE));
+            }
+            getHandle().getChildren().add(sp);
+        }
+    }
+
+    @Override
+    public void rotate(double rx, double ry, double rz) {
+        getHandle().rotate(rx, ry, rz);
+        p = getHandle().rotform(p);
+        System.out.println(p);
+    }
 
     @Override
     public void setCharge(double q) {
-        for (int i = 0; i < charges.size(); i++) {
-            charges.get(i).setCharge((i % 2 == 0) ? q : -q);
-        }
+        if (p.equals(Point3D.ZERO))
+            p = getHandle().rotform(new Point3D(s, 0, 0).multiply(q));
+        else
+            p = p.multiply(1.0 / this.q).multiply(q);
+        this.q = q;
+        System.out.println(q);
+        System.out.println(p.magnitude());
+        setUpDipole();
     }
 
-    public List<PointCharge> getCharges() {
-        return charges;
-    }
-
-    private void addCharge(PointCharge pointCharge) {
-        pointCharge.setVelocity(getVelocity());
-        charges.add(pointCharge);
-        getHandle().getChildren().add(pointCharge.getHandle());
-    }
-
-    private void createMultipole(int poles, double q, double d) {
-        for (int i = 0; i < poles; i++) {
-            addCharge(new PointCharge(
-                new Point3D(xAboutD(poles, i, d), 0, zAboutD(poles, i, d)),
-                (i % 2 == 0) ? q : -q,
-                true
-            ));
-        }
-    }
-
-    private double xAboutD(int poles, int i, double s) {
-       return ((s/2)*Math.cos((2*Math.PI*i)/(double)poles)); 
-    }
-
-    private double zAboutD(int poles, int i, double s) {
-        return ((s/2)*Math.sin((2*Math.PI*i)/(double)poles));
-    }
-    
 }

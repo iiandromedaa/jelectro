@@ -12,8 +12,8 @@ public class PointCharge extends ChargedObject {
 
     Sphere sphere;
 
-    public PointCharge(Point3D position, double charge, boolean child) {
-        super(position, charge, child);
+    public PointCharge(Point3D position, double charge) {
+        super(position, charge, 0, 0, 0);
         sphere = new Sphere(0.1);
         if (charge > 0)
             sphere.setMaterial(new PhongMaterial(Color.RED));
@@ -21,10 +21,7 @@ public class PointCharge extends ChargedObject {
             sphere.setMaterial(new PhongMaterial(Color.DEEPSKYBLUE));
         addShape(sphere);
     }
-    
-    public PointCharge(Point3D position, double charge) {
-        this(position, charge, false);
-    }
+
 
     public Point3D getE(Point3D p) {
         double r = getPosition().distance(p);
@@ -34,16 +31,16 @@ public class PointCharge extends ChargedObject {
         return rhat.multiply((getCharge()*K)/(Math.pow(r, 2)));
     }
 
-    // public Point3D getB(Point3D p) {
-    //     double r = getPosition().distance(p);
-    //     if (r < 0.01)
-    //         return Point3D.ZERO;
-    //     Point3D rhat = p.subtract(getPosition()).normalize();
-    //     Point3D step1 = getVelocity().crossProduct(rhat)
-    //         .multiply(getCharge())
-    //         .multiply((MU_NOUGHT/(4.0*Math.PI))/(Math.pow(r, 2.0)));
-    //     return step1;
-    // }
+    public Point3D getB(Point3D p) {
+        double r = getPosition().distance(p);
+        if (r < 0.01)
+            return Point3D.ZERO;
+        Point3D rhat = p.subtract(getPosition()).normalize();
+        Point3D step1 = getVelocity().crossProduct(rhat)
+            .multiply(getCharge())
+            .multiply((MU_NOUGHT/(4.0*Math.PI))/(Math.pow(r, 2.0)));
+        return step1;
+    }
 
     @Override
     public void setCharge(double q) {

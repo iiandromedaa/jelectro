@@ -28,6 +28,7 @@ public class EditorInset {
     @FXML
     private Spinner<Double> xpos;
 
+    //TODO have rotation be a separate loaded pane because PCs wont have rotation soon
     @FXML
     private Spinner<Double> xrot;
 
@@ -131,7 +132,7 @@ public class EditorInset {
 
     private void rotChanged(ObservableValue<? extends Double> obs, 
         double oldValue, double newValue, ChargedObject chargedObject) {
-        chargedObject.getHandle().rotate(xrot.getValue(), yrot.getValue(), zrot.getValue());
+        chargedObject.rotate(xrot.getValue(), yrot.getValue(), zrot.getValue());
         app.refresh();
     }
 

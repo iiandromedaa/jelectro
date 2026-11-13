@@ -15,6 +15,8 @@ public class Handle extends Group {
     public final Rotate rz = new Rotate(0, Rotate.Z_AXIS);
     public final ChargedObject parent;
 
+    //TODO massive handle refactor, use quaternions, remove rotation from point charges
+
     public Handle(ChargedObject parent) {
         super();
         this.parent = parent;
@@ -45,6 +47,14 @@ public class Handle extends Group {
 
     public Point3D getPosition() {
         return new Point3D(translate.getX(), translate.getY(), translate.getZ());
+    }
+
+    public Point3D rotform(Point3D p) {
+        return rx.transform(
+            ry.transform(
+                rz.transform(p)
+            )
+        );
     }
 
 }

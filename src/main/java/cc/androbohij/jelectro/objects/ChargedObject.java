@@ -11,27 +11,17 @@ public abstract class ChargedObject {
 
     private double charge;
     private final Handle handle;
-    private final boolean child;
     private Point3D velocity;
 
     // TODO: BUILDER PATTERN !!!!!!!!!!!!
     // TODO: although with the subclasses off this, might require CRTP
     public ChargedObject(Point3D position, double charge, 
-        double rx, double ry, double rz, boolean child) {
+        double rx, double ry, double rz) {
         velocity = Point3D.ZERO; 
         handle = new Handle(this);
         handle.translate(position);
         handle.rotate(rx, ry, rz);
         this.charge = charge;
-        this.child = child;
-    }
-
-    public ChargedObject(Point3D position, double charge, boolean child) {
-        this(position, charge, 0, 0, 0, child);
-    }
-
-    public ChargedObject(Point3D position, double charge) {
-        this(position, charge, 0, 0, 0, false);
     }
 
     /**
@@ -52,10 +42,7 @@ public abstract class ChargedObject {
     }
 
     public Point3D getPosition() {
-        if (child)
-            return getHandle().localToScene(getHandle().getPosition());
-        else
-            return handle.getPosition();
+        return handle.getPosition();
     }
 
     public double getPositionX() {
@@ -100,6 +87,10 @@ public abstract class ChargedObject {
 
     public void setPosition(Point3D position) {
         handle.translate(position);
+    }
+
+    public void rotate(double rx, double ry, double rz) {
+        handle.rotate(rx, ry, rz);
     }
 
     protected void addShape(Node node) {
