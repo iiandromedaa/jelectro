@@ -30,11 +30,14 @@ public class Dipole extends ChargedObject {
     }
 
     private Point3D getESumless(Point3D point) {
+        double r = getPosition().distance(point);
+        if (r < 0.01)
+            return Point3D.ZERO;
         Point3D rhat = point.subtract(getPosition()).normalize();
         Point3D nom = rhat
             .multiply(p.dotProduct(rhat)).multiply(3)
             .subtract(p);
-        return nom.multiply(1.0 / Math.pow(getPosition().distance(point), 3))
+        return nom.multiply(1.0 / Math.pow(r, 3))
             .multiply(K);
     }
 
@@ -45,15 +48,19 @@ public class Dipole extends ChargedObject {
 
     /**
      * from http://kirkmcd.princeton.edu/examples/movingdipole.pdf
-     * it produces a shape that is like a the cross-section magnetic dipole, but extruded along v
-     * i thought for a while this was wrong but the math does seem to check out
+     * it produces a shape that is like a the cross-section magnetic dipole, 
+     * but extruded along v, i thought for a while this was wrong but 
+     * the math does seem to check out
      */
     private Point3D getBSumless(Point3D point) {
+        double r = getPosition().distance(point);
+        if (r < 0.01)
+            return Point3D.ZERO;
         Point3D rhat = point.subtract(getPosition()).normalize();
         Point3D nom = getVelocity().crossProduct(rhat)
             .multiply(p.dotProduct(rhat)).multiply(3)
             .subtract(getVelocity().crossProduct(p));
-        return nom.multiply(1.0 / Math.pow(getPosition().distance(point), 3))
+        return nom.multiply(1.0 / Math.pow(r, 3))
             .multiply(MU_NOUGHT/(4.0*Math.PI));
     }
 

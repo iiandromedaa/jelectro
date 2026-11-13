@@ -20,12 +20,13 @@ import javafx.scene.transform.Translate;
 
 public class LineDrawer {
 
-    public static final PhongMaterial WHITE, BLUE, ORANGE;
+    public static final PhongMaterial WHITE, BLUE, ORANGE, RED;
 
     static {
         WHITE = setUpMaterial(new PhongMaterial(), Color.WHITE);
         BLUE = setUpMaterial(new PhongMaterial(), Color.DEEPSKYBLUE);
         ORANGE = setUpMaterial(new PhongMaterial(), Color.ORANGE);
+        RED = setUpMaterial(new PhongMaterial(), Color.RED);
     }
     
     public static Group draw(Point3D p1, Point3D p2, boolean vector, PhongMaterial mat) {
