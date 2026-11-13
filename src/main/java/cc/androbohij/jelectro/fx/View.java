@@ -195,6 +195,7 @@ public class View extends Application implements ListObserver {
             return;
         for (int p = 0; p < streamlinePasses; p++) {
             for (ChargedObject co : eField.getObjects()) {
+                // TODO more regular point distrib on sphere, latlong maybe?
                 List<Point3D> points = fibonacciSphere(
                     co.getPosition(),
                     streamlineStartDistance*Math.max(p, 1), 

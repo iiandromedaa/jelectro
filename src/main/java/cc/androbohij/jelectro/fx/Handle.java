@@ -15,12 +15,10 @@ public class Handle extends Group {
     public final Rotate rz = new Rotate(0, Rotate.Z_AXIS);
     public final ChargedObject parent;
 
-    //TODO massive handle refactor, use quaternions, remove rotation from point charges
-
     public Handle(ChargedObject parent) {
         super();
         this.parent = parent;
-        getTransforms().addAll(translate, rz, ry, rx);
+        getTransforms().addAll(translate, rx, ry, rz);
     }
 
     public void translate(double x, double y, double z) {

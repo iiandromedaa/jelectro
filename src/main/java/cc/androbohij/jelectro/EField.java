@@ -75,7 +75,8 @@ public class EField {
         return objects.isEmpty();
     }
 
-    public List<Point3D> getStreamline(Point3D start, int steps, double stepSize, 
+    // TODO figure out how to fade streamlines with field strength
+    public List<Point3D> getStreamline(Point3D start, int steps, double stepSize,
         boolean fwd, Function<Point3D, Point3D> field) {
         ArrayList<Point3D> path = new ArrayList<>();
         Point3D p = start;
@@ -105,7 +106,7 @@ public class EField {
             // + checking if the curl brought us back where we started
             // because my integrator is undershooting somehow so it spirals inwards if you let it
             if (em.magnitude() < 1e-25 || minR > 3.5 ||
-                (previousDirection != null && start.distance(p) < stepSize*0.75)) {
+                (previousDirection != null && start.distance(p) < stepSize*0.95)) {
                 if (!fwd)
                     Collections.reverse(path);
                 return path;

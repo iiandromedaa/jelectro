@@ -30,8 +30,6 @@ public class Dipole extends ChargedObject {
     }
 
     private Point3D getESumless(Point3D point) {
-        // Point3D p = charges.get(0).getPosition()
-            // .subtract(charges.get(1).getPosition()).multiply(chargePer);
         Point3D rhat = point.subtract(getPosition()).normalize();
         Point3D nom = rhat
             .multiply(p.dotProduct(rhat)).multiply(3)
@@ -77,8 +75,7 @@ public class Dipole extends ChargedObject {
     @Override
     public void rotate(double rx, double ry, double rz) {
         getHandle().rotate(rx, ry, rz);
-        p = getHandle().rotform(p);
-        System.out.println(p);
+        p = getHandle().rotform(new Point3D(s, 0, 0).multiply(q));
     }
 
     @Override
@@ -88,8 +85,6 @@ public class Dipole extends ChargedObject {
         else
             p = p.multiply(1.0 / this.q).multiply(q);
         this.q = q;
-        System.out.println(q);
-        System.out.println(p.magnitude());
         setUpDipole();
     }
 
