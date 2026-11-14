@@ -45,6 +45,10 @@ public abstract class ChargedObject {
         return handle.getPosition();
     }
 
+    public double getSurfaceDistance(Point3D p) {
+        return getPosition().distance(p);
+    }
+
     public double getPositionX() {
         return getPosition().getX();
     }

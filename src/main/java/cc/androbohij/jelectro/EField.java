@@ -91,9 +91,10 @@ public class EField {
             path.add(p);
             double minR = Double.MAX_VALUE;
             for (ChargedObject chargedObject : objects) {
-                double r = p.distance(chargedObject.getPosition());
+                double r = chargedObject.getSurfaceDistance(p);
+                System.out.println(r);
                 minR = Math.min(r, minR);
-                if (r < 0.15) {
+                if (r < 0.05) {
                     if (!fwd)
                         Collections.reverse(path);
                     return path;
@@ -113,11 +114,11 @@ public class EField {
             }
 
             // current step
-            Point3D direction1 = em.normalize().multiply(sign);
+            Point3D direction1 = em.normalize().multiply(sign*0.1);
             Point3D pPredictor = p.add(direction1.multiply(currentStep));
             
             // next step's direction
-            Point3D direction2 = field.apply(pPredictor).normalize().multiply(sign);
+            Point3D direction2 = field.apply(pPredictor).normalize().multiply(sign*0.1);
 
             // avg directions between step n and n+1
             Point3D direction = direction1.add(direction2).normalize();

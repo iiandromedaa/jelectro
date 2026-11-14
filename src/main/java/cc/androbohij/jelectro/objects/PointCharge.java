@@ -24,16 +24,16 @@ public class PointCharge extends ChargedObject {
 
 
     public Point3D getE(Point3D p) {
-        double r = getPosition().distance(p);
-        if (r < 0.01)
+        double r = getSurfaceDistance(p);
+        if (r < 0.05)
             return Point3D.ZERO;
         Point3D rhat = p.subtract(getPosition()).normalize();
         return rhat.multiply((getCharge()*K)/(Math.pow(r, 2)));
     }
 
     public Point3D getB(Point3D p) {
-        double r = getPosition().distance(p);
-        if (r < 0.01)
+        double r = getSurfaceDistance(p);
+        if (r < 0.05)
             return Point3D.ZERO;
         Point3D rhat = p.subtract(getPosition()).normalize();
         Point3D step1 = getVelocity().crossProduct(rhat)

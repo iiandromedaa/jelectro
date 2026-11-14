@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Random;
 import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -14,6 +15,7 @@ import cc.androbohij.jelectro.EField;
 import cc.androbohij.jelectro.ListObserver;
 import cc.androbohij.jelectro.fx.controllers.Sidebar;
 import cc.androbohij.jelectro.objects.ChargedObject;
+import cc.androbohij.jelectro.objects.LineCharge;
 import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
@@ -196,11 +198,20 @@ public class View extends Application implements ListObserver {
         for (int p = 0; p < streamlinePasses; p++) {
             for (ChargedObject co : eField.getObjects()) {
                 // TODO more regular point distrib on sphere, latlong maybe?
-                List<Point3D> points = fibonacciSphere(
-                    co.getPosition(),
-                    streamlineStartDistance*Math.max(p, 1), 
-                    streamlinesPerObject, 2*p
-                );
+                List<Point3D> points;
+                if (co instanceof LineCharge) {
+                    points = pointsOnCylinder(
+                        co.getPosition(), 
+                        streamlineStartDistance*Math.max(p, 1), 
+                        streamlinesPerObject, 
+                        (LineCharge) co
+                    );
+                } else
+                    points = fibonacciSphere(
+                        co.getPosition(),
+                        streamlineStartDistance*Math.max(p, 1), 
+                        streamlinesPerObject, 2*p
+                    );
                 List<Group> lines = new ArrayList<>();
 
                 if (drawE)
@@ -251,6 +262,29 @@ public class View extends Application implements ListObserver {
                     Math.sin(inc) * Math.sin(azi)
                 ).multiply(r)
                 .add(center)
+            );
+        }
+        return points;
+    }
+
+    /**
+     * since the length vector of a line charge is locally +x, this will be too
+     */
+    private List<Point3D> pointsOnCylinder(Point3D center, double r, int n, LineCharge lc) {
+        // TODO switch from random to some uniform
+        List<Point3D> points = new ArrayList<>();
+        // Point3D L = lc.getL();
+        Random rand = new Random();
+        for (int i = 0; i < n; i++) {
+            double randouble = rand.nextDouble();
+            points.add(
+                lc.getHandle().rotform(
+                    new Point3D(
+                        randouble*lc.getL().magnitude(), 
+                        r * Math.sin(randouble*(2*Math.PI)), 
+                        r * Math.cos(randouble*(2*Math.PI))
+                    ).add(lc.getPosition())
+                )
             );
         }
         return points;

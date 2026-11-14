@@ -2,12 +2,17 @@ package cc.androbohij.jelectro.objects;
 
 import static cc.androbohij.jelectro.Settings.K;
 
-import cc.androbohij.jelectro.fx.LineDrawer;
 import javafx.geometry.Point3D;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.PhongMaterial;
+import javafx.scene.shape.Cylinder;
+import javafx.scene.transform.Rotate;
+import javafx.scene.transform.Translate;
 
 public class LineCharge extends ChargedObject {
 
     private Point3D L;
+    private Cylinder cylinder;
     private double l;
 
     public LineCharge(Point3D position, double charge, 
@@ -15,8 +20,17 @@ public class LineCharge extends ChargedObject {
         super(position, charge, rx, ry, rz);
         l = length;
         L = new Point3D(l, 0, 0);
+        cylinder = new Cylinder(0.025, length, 7);
+        cylinder.getTransforms().addAll(
+            new Translate(l/2, 0, 0),
+            new Rotate(90, Rotate.Z_AXIS)
+        );
+        if (charge > 0)
+            cylinder.setMaterial(new PhongMaterial(Color.RED));
+        else if (charge < 0)
+            cylinder.setMaterial(new PhongMaterial(Color.DEEPSKYBLUE));
         getHandle().rotform(L);
-        setCharge(charge);
+        getHandle().add(cylinder);
     }
 
     /**
@@ -30,7 +44,7 @@ public class LineCharge extends ChargedObject {
         Point3D r = p.subtract(getPosition());
         // its r+L in the paper but something about my sign conventions requires - here
         Point3D rplus = r.subtract(L);
-        if (r.magnitude() < 0.01)
+        if (r.magnitude() < 0.05)
             return Point3D.ZERO;
         return
             (rplus.normalize().add(r.normalize())).multiply(
@@ -49,13 +63,22 @@ public class LineCharge extends ChargedObject {
     @Override
     public void setCharge(double q) {
         super.setCharge(q);
-        getHandle().getChildren().clear();
         if (q > 0)
-            getHandle().getChildren().add(LineDrawer.draw(Point3D.ZERO, L, LineDrawer.RED));
+            cylinder.setMaterial(new PhongMaterial(Color.RED));
         else if (q < 0)
-            getHandle().getChildren().add(LineDrawer.draw(Point3D.ZERO, L, LineDrawer.BLUE));
+            cylinder.setMaterial(new PhongMaterial(Color.DEEPSKYBLUE));
         else
-            getHandle().getChildren().add(LineDrawer.draw(Point3D.ZERO, L, LineDrawer.WHITE));
+            cylinder.setMaterial(new PhongMaterial());
+    }
+
+    @Override
+    public double getSurfaceDistance(Point3D p) {
+        return ((p.subtract(getPosition())).crossProduct(L)).magnitude() 
+            / L.magnitude();
+    }
+
+    public Point3D getL() {
+        return L;
     }
     
 }

@@ -30,8 +30,8 @@ public class Dipole extends ChargedObject {
     }
 
     private Point3D getESumless(Point3D point) {
-        double r = getPosition().distance(point);
-        if (r < 0.01)
+        double r = getSurfaceDistance(point);
+        if (r < 0.05)
             return Point3D.ZERO;
         Point3D rhat = point.subtract(getPosition()).normalize();
         Point3D nom = rhat
@@ -53,8 +53,8 @@ public class Dipole extends ChargedObject {
      * the math does seem to check out
      */
     private Point3D getBSumless(Point3D point) {
-        double r = getPosition().distance(point);
-        if (r < 0.01)
+        double r = getSurfaceDistance(point);
+        if (r < 0.05)
             return Point3D.ZERO;
         Point3D rhat = point.subtract(getPosition()).normalize();
         Point3D nom = getVelocity().crossProduct(rhat)
