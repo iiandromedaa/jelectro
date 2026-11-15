@@ -4,6 +4,8 @@ import static cc.androbohij.jelectro.Settings.vectorDensity;
 
 import java.util.List;
 
+import cc.androbohij.jelectro.StreamlinePoint;
+
 import static cc.androbohij.jelectro.Settings.cullFieldVecs;
 import static cc.androbohij.jelectro.Settings.drawArrowHeads;
 
@@ -81,15 +83,40 @@ public class LineDrawer {
         return lines;
     }
 
+    public static Group drawWithOpacity(List<StreamlinePoint> path, 
+        PhongMaterial mat, double scale) {
+        if (path.isEmpty())
+            return null;
+        Group lines = new Group();
+        for (int i = 0; i < path.size()-1; i++) {
+            StreamlinePoint slp = path.get(i);
+            PhongMaterial matt = new PhongMaterial(Color.WHITE);
+
+            slp.scaleValue(scale);
+            setUpMaterial(matt, changeValue(mat.getDiffuseColor(), slp.getValue()));
+
+            Group line = draw(slp.getPoint(), path.get(i+1).getPoint(), false, matt);
+            if (line == null)
+                return null;
+            // line.setOpacity(path.get(i).getOpacity());
+            lines.getChildren().add(line);
+        }
+        return lines;
+    }
+
     private static Image makeSelfIllumMap(Color color) {
         WritableImage image = new WritableImage(1,1);
         image.getPixelWriter().setColor(0, 0, color);
         return image;
     }
 
+    private static Color changeValue(Color color, double value) {
+        return Color.hsb(color.getHue(), color.getSaturation(), color.getBrightness()*value);
+    }
+
     public static PhongMaterial setUpMaterial(PhongMaterial mat, Color color) {
         mat.setDiffuseColor(color);
-        mat.setSpecularColor(color);
+        mat.setSpecularColor(Color.TRANSPARENT);
         mat.setSelfIlluminationMap(makeSelfIllumMap(color));
         return mat;
     }

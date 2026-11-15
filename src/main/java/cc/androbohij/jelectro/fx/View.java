@@ -216,10 +216,10 @@ public class View extends Application implements ListObserver {
 
                 if (drawE)
                     collectLines(lines, points, eField::getEAtPoint, 
-                        LineDrawer.WHITE);
+                        LineDrawer.WHITE, eScale);
                 if (drawB)
                     collectLines(lines, points, eField::getBAtPoint, 
-                        LineDrawer.ORANGE);
+                        LineDrawer.ORANGE, bScale);
                 
                 Platform.runLater(() -> streamlines.getChildren().addAll(lines));
             }
@@ -228,24 +228,24 @@ public class View extends Application implements ListObserver {
     }
 
     private void collectLines(List<Group> lines, List<Point3D> points, 
-        Function<Point3D, Point3D> function, PhongMaterial mat) {
+        Function<Point3D, Point3D> function, PhongMaterial mat, double scale) {
         lines.addAll(points.stream()
             .map(point ->
-                LineDrawer.draw(eField.getStreamline(point, 
+                LineDrawer.drawWithOpacity(eField.getStreamline(point, 
                     streamlineMaxSteps, streamlineStepSize, 
-                    true, function), mat)
+                    true, function), mat, scale)
             ).filter(Objects::nonNull)
             .collect(Collectors.toList())
         );
         
-        lines.addAll(points.stream()
-            .map(point ->
-                LineDrawer.draw(eField.getStreamline(point, 
-                    streamlineMaxSteps, streamlineStepSize, 
-                    false, function), mat)
-            ).filter(Objects::nonNull)
-            .collect(Collectors.toList())
-        );
+        // lines.addAll(points.stream()
+        //     .map(point ->
+        //         LineDrawer.drawWithOpacity(eField.getStreamline(point, 
+        //             streamlineMaxSteps, streamlineStepSize, 
+        //             false, function), mat, scale)
+        //     ).filter(Objects::nonNull)
+        //     .collect(Collectors.toList())
+        // );
     }
 
     private List<Point3D> fibonacciSphere(Point3D center, double r, int n, double shift) {
@@ -271,21 +271,22 @@ public class View extends Application implements ListObserver {
      * since the length vector of a line charge is locally +x, this will be too
      */
     private List<Point3D> pointsOnCylinder(Point3D center, double r, int n, LineCharge lc) {
-        // TODO switch from random to some uniform
         List<Point3D> points = new ArrayList<>();
-        // Point3D L = lc.getL();
-        Random rand = new Random();
-        for (int i = 0; i < n; i++) {
-            double randouble = rand.nextDouble();
-            points.add(
-                lc.getHandle().rotform(
-                    new Point3D(
-                        randouble*lc.getL().magnitude(), 
-                        r * Math.sin(randouble*(2*Math.PI)), 
-                        r * Math.cos(randouble*(2*Math.PI))
-                    ).add(lc.getPosition())
-                )
-            );
+        for (double i = -1; i <= n+1; i++) {
+            for (int j = 0; j < n; j++) {
+                int offset = j % 2 == 0 ? j : j;
+                double z = Math.cos((2*Math.PI*j)/n);
+                double y = Math.sin((2*Math.PI*j)/n);
+                points.add(
+                    lc.getHandle().rotform(
+                        new Point3D(
+                            (i/n)*lc.getL().magnitude(), 
+                            (i/n < 0 || i/n > 1 ? 0.33*r : r) * y, 
+                            (i/n < 0 || i/n > 1 ? 0.33*r : r) * z
+                        ).add(lc.getPosition())
+                    )
+                );
+            }
         }
         return points;
     }

@@ -26,7 +26,7 @@ public abstract class Settings {
      */
     public static double vectorDensity = Math.round((23/Math.pow(vectorBounds, 1.5)));
 
-    public static boolean showGrid = true;
+    public static boolean showGrid = false;
 
     public static boolean showField = false;
 
@@ -40,13 +40,7 @@ public abstract class Settings {
 
     public static int streamlineMaxSteps = 100;
 
-    /**
-     * <p>how many streamlines to trace from each object</p>
-     * <p><b>recommended: 100/number of objects</b></p>
-     * <p><b>but, if you have fields with smaller features 
-     * like octopoles, turn this up more</b></p>
-     */
-    public static int streamlinesPerObject = 20;
+    public static int streamlinesPerObject = 5;
 
     public static boolean drawArrowHeads = false;
 
@@ -64,5 +58,9 @@ public abstract class Settings {
     public static boolean drawB = false;
 
     public static boolean drawE = true;
+
+    public static double eScale = 1;
+
+    public static double bScale = 1e17;
 
 }

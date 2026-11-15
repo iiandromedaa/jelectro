@@ -76,9 +76,9 @@ public class EField {
     }
 
     // TODO figure out how to fade streamlines with field strength
-    public List<Point3D> getStreamline(Point3D start, int steps, double stepSize,
+    public List<StreamlinePoint> getStreamline(Point3D start, int steps, double stepSize,
         boolean fwd, Function<Point3D, Point3D> field) {
-        ArrayList<Point3D> path = new ArrayList<>();
+        ArrayList<StreamlinePoint> path = new ArrayList<>();
         Point3D p = start;
         int sign = fwd ? 1 : -1;
 
@@ -88,11 +88,13 @@ public class EField {
         Point3D previousDirection = null;
 
         for (int i = 0; i < steps; i++) {
-            path.add(p);
+            Point3D em = field.apply(p);
+
+            // System.out.println(em.magnitude());
+            path.add(new StreamlinePoint(p, Math.min(em.magnitude(), 1)));
             double minR = Double.MAX_VALUE;
             for (ChargedObject chargedObject : objects) {
                 double r = chargedObject.getSurfaceDistance(p);
-                System.out.println(r);
                 minR = Math.min(r, minR);
                 if (r < 0.05) {
                     if (!fwd)
@@ -100,8 +102,6 @@ public class EField {
                     return path;
                 }
             }
-
-            Point3D em = field.apply(p);
             
             // we gotta accept really small values because at these speeds B is tiny
             // + checking if the curl brought us back where we started
@@ -114,11 +114,11 @@ public class EField {
             }
 
             // current step
-            Point3D direction1 = em.normalize().multiply(sign*0.1);
+            Point3D direction1 = em.normalize().multiply(sign*0.5);
             Point3D pPredictor = p.add(direction1.multiply(currentStep));
             
             // next step's direction
-            Point3D direction2 = field.apply(pPredictor).normalize().multiply(sign*0.1);
+            Point3D direction2 = field.apply(pPredictor).normalize().multiply(sign*0.5);
 
             // avg directions between step n and n+1
             Point3D direction = direction1.add(direction2).normalize();
@@ -128,7 +128,7 @@ public class EField {
                 if (alignment > 0.99) {
                     currentStep = Math.min(currentStep * 1.2, maxStep);
                 } else if (alignment < 0.99) {
-                    currentStep = Math.max(currentStep * 0.5, stepSize);
+                    currentStep = Math.max(currentStep * 0.3, stepSize);
                 }
             }
 
