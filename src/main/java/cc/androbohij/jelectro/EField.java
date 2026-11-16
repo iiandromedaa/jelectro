@@ -75,7 +75,6 @@ public class EField {
         return objects.isEmpty();
     }
 
-    // TODO figure out how to fade streamlines with field strength
     public List<StreamlinePoint> getStreamline(Point3D start, int steps, double stepSize,
         boolean fwd, Function<Point3D, Point3D> field) {
         ArrayList<StreamlinePoint> path = new ArrayList<>();

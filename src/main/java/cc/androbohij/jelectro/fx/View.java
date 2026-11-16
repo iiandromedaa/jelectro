@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Random;
 import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -197,7 +196,6 @@ public class View extends Application implements ListObserver {
             return;
         for (int p = 0; p < streamlinePasses; p++) {
             for (ChargedObject co : eField.getObjects()) {
-                // TODO more regular point distrib on sphere, latlong maybe?
                 List<Point3D> points;
                 if (co instanceof LineCharge) {
                     points = pointsOnCylinder(
@@ -207,10 +205,10 @@ public class View extends Application implements ListObserver {
                         (LineCharge) co
                     );
                 } else
-                    points = fibonacciSphere(
+                    points = pointsOnSphere(
                         co.getPosition(),
                         streamlineStartDistance*Math.max(p, 1), 
-                        streamlinesPerObject, 2*p
+                        streamlinesPerObject, co
                     );
                 List<Group> lines = new ArrayList<>();
 
@@ -221,7 +219,7 @@ public class View extends Application implements ListObserver {
                     collectLines(lines, points, eField::getBAtPoint, 
                         LineDrawer.ORANGE, bScale);
                 
-                Platform.runLater(() -> streamlines.getChildren().addAll(lines));
+                streamlines.getChildren().addAll(lines);
             }
         }
         log.info(String.format("Streamlines took %dms", System.currentTimeMillis()-t));
@@ -238,31 +236,35 @@ public class View extends Application implements ListObserver {
             .collect(Collectors.toList())
         );
         
-        // lines.addAll(points.stream()
-        //     .map(point ->
-        //         LineDrawer.drawWithOpacity(eField.getStreamline(point, 
-        //             streamlineMaxSteps, streamlineStepSize, 
-        //             false, function), mat, scale)
-        //     ).filter(Objects::nonNull)
-        //     .collect(Collectors.toList())
-        // );
+        lines.addAll(points.stream()
+            .map(point ->
+                LineDrawer.drawWithOpacity(eField.getStreamline(point, 
+                    streamlineMaxSteps, streamlineStepSize, 
+                    false, function), mat, scale)
+            ).filter(Objects::nonNull)
+            .collect(Collectors.toList())
+        );
     }
 
-    private List<Point3D> fibonacciSphere(Point3D center, double r, int n, double shift) {
+    private List<Point3D> pointsOnSphere(Point3D center, double r, int n, ChargedObject co) {
         List<Point3D> points = new ArrayList<>();
-        double goldenRatio = (1.0 + Math.sqrt(5.0)) / 2.0;
-        double increment = Math.PI * 2.0 * (goldenRatio - 1.0) + shift;
-        for (int i = 0; i < n; i++) {
-            double inc = Math.acos(1 - (2*(i))/(double)n);
-            double azi = increment*i;
-            points.add(
-                new Point3D(
-                    Math.sin(inc) * Math.cos(azi), 
-                    Math.cos(inc), 
-                    Math.sin(inc) * Math.sin(azi)
-                ).multiply(r)
-                .add(center)
-            );
+        for (double i = 0; i <= n; i++) {
+            for (int j = 0; j < n; j++) {
+                double latitude = Math.PI * i / (n - 1);
+                double longitude = 2 * Math.PI * j / n;
+                double x = Math.sin(latitude) * Math.cos(longitude);
+                double y = Math.cos(latitude);
+                double z = Math.sin(latitude) * Math.sin(longitude);
+                points.add(
+                    co.getHandle().rotform(
+                        new Point3D(
+                            r * x, 
+                            r * y, 
+                            r * z
+                        ).add(co.getPosition())
+                    )
+                );
+            }
         }
         return points;
     }
@@ -274,7 +276,6 @@ public class View extends Application implements ListObserver {
         List<Point3D> points = new ArrayList<>();
         for (double i = -1; i <= n+1; i++) {
             for (int j = 0; j < n; j++) {
-                int offset = j % 2 == 0 ? j : j;
                 double z = Math.cos((2*Math.PI*j)/n);
                 double y = Math.sin((2*Math.PI*j)/n);
                 points.add(
