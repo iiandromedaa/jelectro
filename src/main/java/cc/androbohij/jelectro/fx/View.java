@@ -200,15 +200,15 @@ public class View extends Application implements ListObserver {
                 if (co instanceof LineCharge) {
                     points = pointsOnCylinder(
                         co.getPosition(), 
-                        streamlineStartDistance*Math.max(p, 1), 
-                        streamlinesPerObject, 
+                        streamlineStartDistance*(p+1), 
+                        streamlineResolution, p, 
                         (LineCharge) co
                     );
                 } else
                     points = pointsOnSphere(
                         co.getPosition(),
-                        streamlineStartDistance*Math.max(p, 1), 
-                        streamlinesPerObject, co
+                        streamlineStartDistance*(p+1), 
+                        streamlineResolution, p, co
                     );
                 List<Group> lines = new ArrayList<>();
 
@@ -246,12 +246,13 @@ public class View extends Application implements ListObserver {
         );
     }
 
-    private List<Point3D> pointsOnSphere(Point3D center, double r, int n, ChargedObject co) {
+    private List<Point3D> pointsOnSphere(Point3D center, double r, 
+        int n, int shift, ChargedObject co) {
         List<Point3D> points = new ArrayList<>();
-        for (double i = 0; i <= n; i++) {
+        for (double i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
-                double latitude = Math.PI * i / (n - 1);
-                double longitude = 2 * Math.PI * j / n;
+                double latitude = (Math.PI * i / (n - 1)) + (Math.PI*shift)/6;
+                double longitude = (2 * Math.PI * j / n) + (Math.PI*shift)/6;
                 double x = Math.sin(latitude) * Math.cos(longitude);
                 double y = Math.cos(latitude);
                 double z = Math.sin(latitude) * Math.sin(longitude);
@@ -272,12 +273,13 @@ public class View extends Application implements ListObserver {
     /**
      * since the length vector of a line charge is locally +x, this will be too
      */
-    private List<Point3D> pointsOnCylinder(Point3D center, double r, int n, LineCharge lc) {
+    private List<Point3D> pointsOnCylinder(Point3D center, double r, int n, 
+        int shift, LineCharge lc) {
         List<Point3D> points = new ArrayList<>();
         for (double i = -1; i <= n+1; i++) {
             for (int j = 0; j < n; j++) {
-                double z = Math.cos((2*Math.PI*j)/n);
-                double y = Math.sin((2*Math.PI*j)/n);
+                double z = Math.cos(((2*Math.PI*j)/n)+shift);
+                double y = Math.sin(((2*Math.PI*j)/n)+shift);
                 points.add(
                     lc.getHandle().rotform(
                         new Point3D(

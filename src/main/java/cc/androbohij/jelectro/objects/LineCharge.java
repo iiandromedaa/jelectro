@@ -20,7 +20,7 @@ public class LineCharge extends ChargedObject {
         super(position, charge, rx, ry, rz);
         l = length;
         L = new Point3D(l, 0, 0);
-        cylinder = new Cylinder(0.025, length, 7);
+        cylinder = new Cylinder(0.05, length, 7);
         cylinder.getTransforms().addAll(
             new Translate(l/2, 0, 0),
             new Rotate(90, Rotate.Z_AXIS)

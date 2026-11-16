@@ -40,7 +40,7 @@ public abstract class Settings {
 
     public static int streamlineMaxSteps = 100;
 
-    public static int streamlinesPerObject = 5;
+    public static int streamlineResolution = 5;
 
     public static boolean drawArrowHeads = false;
 

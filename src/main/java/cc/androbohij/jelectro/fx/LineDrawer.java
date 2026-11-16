@@ -22,13 +22,12 @@ import javafx.scene.transform.Translate;
 
 public class LineDrawer {
 
-    public static final PhongMaterial WHITE, BLUE, ORANGE, RED;
+    public static final PhongMaterial WHITE, BLUE, ORANGE;
 
     static {
         WHITE = setUpMaterial(new PhongMaterial(), Color.WHITE);
         BLUE = setUpMaterial(new PhongMaterial(), Color.DEEPSKYBLUE);
         ORANGE = setUpMaterial(new PhongMaterial(), Color.ORANGE);
-        RED = setUpMaterial(new PhongMaterial(), Color.RED);
     }
     
     public static Group draw(Point3D p1, Point3D p2, boolean vector, PhongMaterial mat) {
@@ -90,15 +89,18 @@ public class LineDrawer {
         Group lines = new Group();
         for (int i = 0; i < path.size()-1; i++) {
             StreamlinePoint slp = path.get(i);
-            PhongMaterial matt = new PhongMaterial(Color.WHITE);
-
             slp.scaleValue(scale);
-            setUpMaterial(matt, changeValue(mat.getDiffuseColor(), slp.getValue()));
 
-            Group line = draw(slp.getPoint(), path.get(i+1).getPoint(), false, matt);
+            Group line = draw(
+                slp.getPoint(), 
+                path.get(i+1).getPoint(), 
+                false, 
+                setUpMaterial(new PhongMaterial(), 
+                    changeValue(mat.getDiffuseColor(), slp.getValue()))
+            );
+
             if (line == null)
                 return null;
-            // line.setOpacity(path.get(i).getOpacity());
             lines.getChildren().add(line);
         }
         return lines;

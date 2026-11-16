@@ -82,7 +82,7 @@ public class EField {
         int sign = fwd ? 1 : -1;
 
         double currentStep = stepSize;
-        double maxStep = stepSize * 10;
+        double maxStep = stepSize * 3;
 
         Point3D previousDirection = null;
 
@@ -113,11 +113,11 @@ public class EField {
             }
 
             // current step
-            Point3D direction1 = em.normalize().multiply(sign*0.5);
-            Point3D pPredictor = p.add(direction1.multiply(currentStep));
+            Point3D direction1 = em.normalize().multiply(sign);
+            Point3D pPredictor = p.add(direction1.multiply(stepSize));
             
             // next step's direction
-            Point3D direction2 = field.apply(pPredictor).normalize().multiply(sign*0.5);
+            Point3D direction2 = field.apply(pPredictor).normalize().multiply(sign);
 
             // avg directions between step n and n+1
             Point3D direction = direction1.add(direction2).normalize();

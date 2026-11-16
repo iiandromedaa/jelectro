@@ -70,8 +70,8 @@
                               <CheckBox fx:id="cbDrawVelocities" layoutX="20.0" layoutY="104.0" mnemonicParsing="false" text="Draw Object Velocities" />
                               <CheckBox fx:id="cb3dField" layoutX="20.0" layoutY="104.0" mnemonicParsing="false" text="3D Field (SLOW)" />
                               <Separator prefWidth="200.0" />
-                              <Label layoutX="20.0" layoutY="173.0" text="Streamlines Per Object" />
-                              <Spinner fx:id="spSmlPerObject" editable="true" layoutX="20.0" layoutY="199.0" prefWidth="125.0" />
+                              <Label layoutX="20.0" layoutY="173.0" text="Streamline Resolution" />
+                              <Spinner fx:id="spSmlRes" editable="true" layoutX="20.0" layoutY="199.0" prefWidth="125.0" />
                               <Label layoutX="20.0" layoutY="233.0" text="Streamline Passes" />
                               <Spinner fx:id="spSmlPasses" editable="true" layoutX="20.0" layoutY="259.0" prefWidth="125.0" />
                               <Label layoutX="20.0" layoutY="233.0" text="Streamline Start Distance" />

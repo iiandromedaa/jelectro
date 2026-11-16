@@ -74,7 +74,7 @@ public class Sidebar implements ListObserver {
     private Spinner<Integer> spSmlPasses;
 
     @FXML
-    private Spinner<Integer> spSmlPerObject;
+    private Spinner<Integer> spSmlRes;
 
     @FXML
     private Spinner<Double> spSmlDist;
@@ -108,13 +108,13 @@ public class Sidebar implements ListObserver {
 
         spSmlPasses.setValueFactory(
             new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 10));
-        spSmlPerObject.setValueFactory(
-            new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100));
+        spSmlRes.setValueFactory(
+            new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 20));
         spSmlDist.setValueFactory(
             new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 5));
 
         spSmlPasses.getValueFactory().setValue(streamlinePasses);
-        spSmlPerObject.getValueFactory().setValue(streamlinesPerObject);
+        spSmlRes.getValueFactory().setValue(streamlineResolution);
         spSmlDist.getValueFactory().setValue(streamlineStartDistance);
     }
 
@@ -136,7 +136,7 @@ public class Sidebar implements ListObserver {
         showVelocities = cbDrawVelocities.isSelected();
 
         streamlinePasses = spSmlPasses.getValue();
-        streamlinesPerObject = spSmlPerObject.getValue();
+        streamlineResolution = spSmlRes.getValue();
         streamlineStartDistance = spSmlDist.getValue();
 
         app.refresh();
