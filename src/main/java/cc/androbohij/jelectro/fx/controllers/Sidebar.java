@@ -87,7 +87,7 @@ public class Sidebar implements ListObserver {
         combObjectCreateType.getItems()
             .addAll(
                 "Select", "Point Charge", "Dipole", 
-                "Line of Charge", "Plane of Charge"
+                "Line of Charge"//, "Plane of Charge"
         );
     }
 
