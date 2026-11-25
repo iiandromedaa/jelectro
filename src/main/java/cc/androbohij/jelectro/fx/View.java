@@ -105,7 +105,6 @@ public class View extends Application implements ListObserver {
 
         Scene scene = new Scene(UI, 1200, 800);
 
-        stage.initStyle(StageStyle.UNDECORATED);
         stage.setScene(scene);
         stage.show();
         refresh();
